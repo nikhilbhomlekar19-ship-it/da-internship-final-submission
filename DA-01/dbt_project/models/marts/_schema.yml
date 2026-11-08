@@ -1,0 +1,124 @@
+version: 2
+
+models:
+  - name: fct_sessions
+    description: >
+      Unified web (GA4) + app (Segment) sessions stitched to a person by the identity graph.
+      Unidentified devices keep person_id = anon:<device_id>.
+    columns:
+      - name: session_key
+        data_tests: [unique, not_null]
+      - name: person_id
+        data_tests: [not_null]
+      - name: channel_group
+        description: Marketing channel from source/medium (macro c360_channel_group).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [Paid Search, Paid Social, Display, Affiliate, Email, App Push, Organic Search, Organic Social, Referral, Direct, Other]
+      - name: campaign_key
+        description: source|medium|campaign (lower-case). Joins sessions to ad spend.
+
+  - name: fct_orders
+    description: >
+      CRM orders (system of record) + tracking evidence + resolved person. is_conversion = completed order.
+      is_first_order = the customer's first completed order.
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: person_id
+        data_tests: [not_null]
+      - name: net_revenue
+        data_tests:
+          - between_values: {arguments: {min_value: 0, max_value: 100000}}
+      - name: status
+        data_tests:
+          - accepted_values: {arguments: {values: [completed, returned, cancelled]}}
+  - name: customer_rfm
+    description: RFM scores (1-5) and the 10-segment grid, one row per customer with at least one completed order.
+    columns:
+      - name: person_id
+        data_tests: [unique, not_null]
+      - name: r_score
+        data_tests:
+          - between_values: {arguments: {min_value: 1, max_value: 5}}
+      - name: f_score
+        data_tests:
+          - between_values: {arguments: {min_value: 1, max_value: 5}}
+      - name: m_score
+        data_tests:
+          - between_values: {arguments: {min_value: 1, max_value: 5}}
+      - name: rfm_segment
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Champions, Loyal Customers, Potential Loyalists, New Customers, Promising, Need Attention, About To Sleep, At Risk, Cant Lose Them, Hibernating]
+
+  - name: customer_profile
+    description: >
+      Customer 360. One row per resolved person present in the CRM: identity, behaviour (web + app), orders,
+      RFM segment, BG/NBD lifetime value forecast, CLV tier and lifecycle stage. PII-safe (hashed email only).
+    columns:
+      - name: person_id
+        data_tests: [unique, not_null]
+      - name: clv_tier
+        data_tests:
+          - accepted_values: {arguments: {values: [Platinum, Gold, Silver, Bronze, No orders]}}
+      - name: lifecycle_stage
+        data_tests:
+          - accepted_values: {arguments: {values: [Prospect, New, Active, At Risk, Churned]}}
+      - name: p_alive
+        data_tests:
+          - between_values: {arguments: {min_value: 0, max_value: 1}}
+  - name: fct_attribution_credits
+    description: Long format - one row per (model, order, touchpoint) with fractional credit and credited revenue.
+    columns:
+      - name: model
+        data_tests:
+          - not_null
+          - accepted_values: {arguments: {values: [first_touch, last_touch, linear, time_decay]}}
+      - name: order_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('fct_orders'), field: order_id}}
+      - name: credit
+        data_tests:
+          - between_values: {arguments: {min_value: 0, max_value: 1.000001}}
+  - name: mart_attribution_by_channel
+    description: Revenue / orders / new customers credited to each channel by each model.
+    columns:
+      - name: revenue_share
+        data_tests:
+          - between_values: {arguments: {min_value: 0, max_value: 1.000001}}
+  - name: mart_attribution_comparison
+    description: Models side by side per channel; share_spread_pp shows how much a channel's credit depends on the model.
+    columns:
+      - name: channel_group
+        data_tests: [unique, not_null]
+
+  - name: mart_campaign_roi
+    description: Campaign ROAS, ROI, CPA, CAC and LTV:CAC under each model, next to platform-reported numbers.
+    columns:
+      - name: campaign_key
+        data_tests: [not_null]
+      - name: model
+        data_tests: [not_null]
+
+  - name: mart_channel_roi
+    description: Channel roll-up of mart_campaign_roi (includes unpaid channels).
+
+  - name: mart_campaign_daily
+    description: Daily spend vs revenue credited to the same day's touchpoints (input to response-curve fitting).
+    columns:
+      - name: spend
+        data_tests:
+          - between_values: {arguments: {min_value: 0, max_value: 1000000}}
+  - name: mart_daily_kpis
+    description: Daily executive KPIs - sessions, orders, revenue, ad spend, blended ROAS (MER), blended CAC, conversion rate.
+    columns:
+      - name: kpi_date
+        data_tests: [unique, not_null]
+
+  - name: mart_sessions_by_channel_daily
+    description: Traffic and funnel by day x channel x platform (web/app).

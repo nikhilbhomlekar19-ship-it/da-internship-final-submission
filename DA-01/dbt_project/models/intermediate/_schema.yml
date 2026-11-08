@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: int_ga4__sessions
+    description: GA4 events collapsed to web sessions (session_key = user_pseudo_id.ga_session_id).
+    columns:
+      - name: session_key
+        data_tests: [unique, not_null]
+      - name: channel_group
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Paid Search, Paid Social, Display, Affiliate, Email, App Push, Organic Search, Organic Social, Referral, Direct, Other]
+
+  - name: int_segment__sessions
+    description: Segment app events sessionised with a 30-minute inactivity rule.
+    columns:
+      - name: session_key
+        data_tests: [unique, not_null]
+
+  - name: int_identity_edges
+    description: Evidence edges for the identity graph (see the model header). Consumed by `python -m customer360 identity`.
+    columns:
+      - name: edge_class
+        data_tests:
+          - accepted_values: {arguments: {values: [person, device_device, device_person]}}
+      - name: node_a
+        data_tests: [not_null]
+      - name: node_b
+        data_tests: [not_null]
+
+  - name: int_attribution__paths
+    description: One row per (conversion, touchpoint) with the four attribution weights. Unattributed orders get one pseudo-touch.
+    columns:
+      - name: order_id
+        data_tests: [not_null]
+
+  - name: int_customer__orders
+    description: Person-level order aggregates.
+    columns:
+      - name: person_id
+        data_tests: [unique, not_null]

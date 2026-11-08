@@ -1,0 +1,25 @@
+version: 2
+
+exposures:
+  - name: tableau_marketing_attribution
+    label: Marketing Attribution & Budget Dashboard (Tableau)
+    type: dashboard
+    maturity: medium
+    description: Channel/campaign attribution model comparison, ROAS/CPA, budget recommendations.
+    owner: {name: Marketing Analytics Interns, email: analytics@example.com}
+    depends_on:
+      - ref('mart_attribution_by_channel')
+      - ref('mart_attribution_comparison')
+      - ref('mart_campaign_roi')
+      - ref('mart_channel_roi')
+      - ref('mart_campaign_daily')
+
+  - name: tableau_customer_360
+    label: Customer 360 & Segments (Tableau)
+    type: dashboard
+    maturity: medium
+    description: Customer profile, RFM segments, CLV tiers, lifecycle stages.
+    owner: {name: Marketing Analytics Interns, email: analytics@example.com}
+    depends_on:
+      - ref('customer_profile')
+      - ref('customer_rfm')
