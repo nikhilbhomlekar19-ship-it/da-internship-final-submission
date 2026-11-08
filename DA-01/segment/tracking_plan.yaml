@@ -1,0 +1,43 @@
+# Segment tracking plan for the Customer 360 project (import it into Segment Protocols, or use it as the contract with engineering)
+version: 1
+sources: [web (analytics.js), ios (analytics-ios), android (analytics-android)]
+
+identity_rules:
+  user_id: "CRM customer_id (the same id as crm_customers.customer_id)"
+  anonymous_id: "Segment-generated; persisted per browser / app install"
+  required_trait_on_web: "ga_client_id = GA4 client_id (the cookie value that becomes user_pseudo_id in the BigQuery export)"
+  why: >
+    GA4 and Segment generate independent device ids. Sending the GA4 client_id as an identify() trait is what lets
+    the warehouse join GA4 sessions to Segment users to CRM customers deterministically (edge `segment_ga_bridge`).
+
+calls:
+  identify:
+    when: "sign-up, log-in, checkout (guest or not), app first-open after login"
+    traits:
+      email: {type: string, required: true, note: "raw is fine - normalised in dbt (c360_normalize_email)"}
+      ga_client_id: {type: string, required: "web only"}
+      first_name: {type: string}
+      marketing_opt_in: {type: boolean}
+
+  track:
+    - event: Application Opened
+      properties: {from_background: boolean}
+      context: "context.campaign.{source,medium,name} MUST be set from the deep link / MMP / push payload (this is how app sessions get a channel)"
+    - event: Product Viewed
+      properties: {product_id: string, category: string, price: number}
+    - event: Product Added
+      properties: {product_id: string, quantity: integer, cart_id: string}
+    - event: Checkout Started
+      properties: {order_id: string, value: number, currency: string}
+    - event: Order Completed
+      properties:
+        order_id: {type: string, required: true, note: "== CRM orders.external_ref  (order-match identity edge)"}
+        total: {type: number, required: true}
+        revenue: {type: number, required: true, note: "net of discount, before refunds"}
+        currency: {type: string, required: true}
+        coupon: {type: string}
+
+warehouse_mapping:   # what Segment's BigQuery destination creates -> dbt source
+  identifies: stg_segment__identifies
+  tracks: stg_segment__tracks
+  order_completed: stg_segment__orders
