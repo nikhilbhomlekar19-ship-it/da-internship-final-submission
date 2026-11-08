@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: stg_ga4__events
+    description: One row per GA4 event, event_params flattened (ga_session_id, source/medium/campaign, page_location ...). Table for speed.
+    columns:
+      - name: event_ts
+        data_tests: [not_null]
+      - name: event_name
+        data_tests: [not_null]
+      - name: user_pseudo_id
+        data_tests: [not_null]
+
+  - name: stg_ga4__purchases
+    description: GA4 purchase events de-duplicated by transaction_id.
+    columns:
+      - name: transaction_id
+        data_tests: [unique, not_null]
+      - name: purchase_revenue
+        data_tests:
+          - between_values: {arguments: {min_value: 0, max_value: 100000}}
+  - name: stg_segment__identifies
+    description: Segment identify() calls - the deterministic anonymous_id <-> user_id bridge.
+    columns:
+      - name: message_id
+        data_tests: [unique, not_null]
+      - name: anonymous_id
+        data_tests: [not_null]
+
+  - name: stg_segment__tracks
+    description: Segment track() events from the mobile app.
+    columns:
+      - name: message_id
+        data_tests: [unique, not_null]
+
+  - name: stg_segment__orders
+    description: Segment "Order Completed" events.
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+
+  - name: stg_crm__customers
+    description: CRM customers with normalised email (lower-case, +tag and gmail dots removed) and phone (last 10 digits).
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: email_norm
+        description: Join key for identity resolution (same rules as the Segment identify traits).
+
+  - name: stg_crm__orders
+    description: CRM orders (system of record for revenue). net_revenue = paid amount minus refunds, never negative.
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_crm__customers'), field: customer_id}}
+      - name: status
+        data_tests:
+          - accepted_values: {arguments: {values: [completed, returned, cancelled]}}
+      - name: order_channel
+        data_tests:
+          - accepted_values: {arguments: {values: [web, app, store]}}
+  - name: stg_ads__spend
+    description: Daily ad-platform export mapped to the same channel taxonomy and campaign_key as the sessions.
+    columns:
+      - name: campaign_key
+        data_tests: [not_null]
+      - name: cost
+        data_tests:
+          - between_values: {arguments: {min_value: 0, max_value: 1000000}}
+      - name: channel_group
+        data_tests:
+          - accepted_values: {arguments: {values: [Paid Search, Paid Social, Display, Affiliate]}}

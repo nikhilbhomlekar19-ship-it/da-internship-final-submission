@@ -1,0 +1,48 @@
+version: 2
+
+sources:
+  - name: ga4
+    description: >
+      GA4 BigQuery export. On BigQuery this is the public Google Merchandise Store sample
+      (bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*). Locally it is a GA4-shaped synthetic table.
+    database: "{{ 'bigquery-public-data' if (target.type == 'bigquery' and var('use_public_ga4', true)) else target.database }}"
+    schema: "{{ 'ga4_obfuscated_sample_ecommerce' if (target.type == 'bigquery' and var('use_public_ga4', true)) else env_var('C360_RAW_SCHEMA', 'c360_raw') }}"
+    tables:
+      - name: events
+        identifier: "{{ 'events_*' if (target.type == 'bigquery' and var('use_public_ga4', true)) else 'ga4_events' }}"
+
+  - name: segment
+    description: Segment warehouse tables (BigQuery destination layout). Point the identifiers at your real Segment dataset via vars.
+    schema: "{{ var('segment_schema', env_var('C360_RAW_SCHEMA', 'c360_raw')) }}"
+    tables:
+      - name: identifies
+        identifier: "{{ var('segment_identifies_table', 'segment_identifies') }}"
+      - name: tracks
+        identifier: "{{ var('segment_tracks_table', 'segment_tracks') }}"
+      - name: order_completed
+        identifier: "{{ var('segment_orders_table', 'segment_order_completed') }}"
+
+  - name: crm
+    description: Synthetic CRM extract (customers + orders). Replace with Salesforce / HubSpot / Shopify loads in production.
+    schema: "{{ env_var('C360_RAW_SCHEMA', 'c360_raw') }}"
+    tables:
+      - name: customers
+        identifier: crm_customers
+      - name: orders
+        identifier: crm_orders
+
+  - name: ads
+    description: Synthetic daily ad-platform export (Google, Meta, TikTok, DV360, affiliate networks).
+    schema: "{{ env_var('C360_RAW_SCHEMA', 'c360_raw') }}"
+    tables:
+      - name: spend_daily
+        identifier: ads_spend_daily
+
+  - name: ml
+    description: >
+      Tables written by the Python steps (NOT dbt): the identity graph and the BG/NBD CLV forecast.
+      Pipeline order: dbt (staging + identity edges) -> python identity -> python clv -> dbt (everything else).
+    schema: "{{ env_var('C360_ML_SCHEMA', 'c360_ml') }}"
+    tables:
+      - name: identity_nodes
+      - name: clv_forecast

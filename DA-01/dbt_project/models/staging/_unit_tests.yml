@@ -1,0 +1,33 @@
+version: 2
+
+unit_tests:
+  - name: crm_email_and_phone_normalisation
+    description: Identity resolution depends on these rules - lower-case, strip +tags, gmail dots and googlemail alias, 10-digit phones.
+    model: stg_crm__customers
+    given:
+      - input: source('crm', 'customers')
+        rows:
+          - {customer_id: C1, first_name: " Ann ", last_name: Lee, email: " Ann.Lee+promo@Gmail.com ", phone: "(555) 123-4567", country: us, city: Austin, created_at: "2020-11-01 10:00:00", marketing_opt_in: true, loyalty_tier: none, self_reported_source: Google, signup_channel: web_signup}
+          - {customer_id: C2, first_name: Ann, last_name: Lee, email: "annlee@googlemail.com", phone: "+1 555 123 4567", country: US, city: Austin, created_at: "2020-11-02 10:00:00", marketing_opt_in: true, loyalty_tier: none, self_reported_source: Google, signup_channel: web_signup}
+          - {customer_id: C3, first_name: Bob, last_name: Roe, email: "Bob.Roe+x@Example.com", phone: "12345", country: GB, city: London, created_at: "2020-11-03 10:00:00", marketing_opt_in: false, loyalty_tier: none, self_reported_source: Friend, signup_channel: guest_checkout}
+          - {customer_id: C4, first_name: Cy, last_name: Poe, email: null, phone: null, country: CA, city: Toronto, created_at: "2020-11-04 10:00:00", marketing_opt_in: false, loyalty_tier: none, self_reported_source: null, signup_channel: store}
+    expect:
+      rows:
+        - {customer_id: C1, first_name: Ann, email_norm: annlee@gmail.com, phone_norm: "5551234567", country_code: US}
+        - {customer_id: C2, first_name: Ann, email_norm: annlee@gmail.com, phone_norm: "5551234567", country_code: US}
+        - {customer_id: C3, first_name: Bob, email_norm: bob.roe@example.com, phone_norm: null, country_code: GB}
+        - {customer_id: C4, first_name: Cy, email_norm: null, phone_norm: null, country_code: CA}
+
+  - name: orders_net_revenue_is_never_negative
+    model: stg_crm__orders
+    given:
+      - input: source('crm', 'orders')
+        rows:
+          - {order_id: O1, customer_id: C1, ordered_at: "2020-11-01 10:00:00", order_channel: WEB, status: Completed, order_total: 100, discount_amount: 20, refund_amount: 0, external_ref: T1, coupon_code: SAVE20, items_count: 2}
+          - {order_id: O2, customer_id: C1, ordered_at: "2020-11-02 10:00:00", order_channel: web, status: returned, order_total: 100, discount_amount: 0, refund_amount: 100, external_ref: T2, coupon_code: null, items_count: 1}
+          - {order_id: O3, customer_id: C2, ordered_at: "2020-11-03 10:00:00", order_channel: store, status: cancelled, order_total: 50, discount_amount: null, refund_amount: 80, external_ref: null, coupon_code: null, items_count: 1}
+    expect:
+      rows:
+        - {order_id: O1, order_channel: web, status: completed, paid_amount: 80, net_revenue: 80}
+        - {order_id: O2, order_channel: web, status: returned, paid_amount: 100, net_revenue: 0}
+        - {order_id: O3, order_channel: store, status: cancelled, paid_amount: 50, net_revenue: 0}

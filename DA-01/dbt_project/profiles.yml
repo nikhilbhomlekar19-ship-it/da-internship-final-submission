@@ -1,0 +1,19 @@
+# Used with:  dbt <cmd> --project-dir dbt_project --profiles-dir dbt_project --target <duckdb|bigquery>
+customer360:
+  target: "{{ env_var('C360_TARGET', 'duckdb') }}"
+  outputs:
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('C360_DUCKDB_PATH', 'data/c360.duckdb') }}"
+      schema: "{{ env_var('C360_DBT_SCHEMA', 'c360') }}"
+      threads: 1
+    bigquery:
+      type: bigquery
+      method: "{{ env_var('DBT_BQ_METHOD', 'oauth') }}"      # oauth (gcloud ADC) | service-account
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS', '') }}"
+      project: "{{ env_var('GCP_PROJECT', 'set-GCP_PROJECT') }}"
+      dataset: "{{ env_var('C360_DBT_SCHEMA', 'c360') }}"
+      location: "{{ env_var('BQ_LOCATION', 'US') }}"          # must be US to join the public GA4 sample
+      threads: 4
+      priority: interactive
+      job_execution_timeout_seconds: 900
