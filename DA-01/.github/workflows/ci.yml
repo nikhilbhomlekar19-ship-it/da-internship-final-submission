@@ -1,0 +1,22 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -r requirements.txt
+      - name: Unit tests + offline BigQuery SQL validation
+        run: python -m pytest -q -m "not integration"
+      - name: End-to-end pipeline on a tiny synthetic world (DuckDB) incl. 80 dbt data tests
+        run: python -m pytest -q -m integration
+      - name: dbt unit tests
+        run: |
+          export C360_DUCKDB_PATH=$PWD/data/c360.duckdb
+          python -m customer360 generate --scale small
+          dbt seed --project-dir dbt_project --profiles-dir dbt_project
+          dbt build --project-dir dbt_project --profiles-dir dbt_project --select +int_identity_edges
+          python -m customer360 identity && python -m customer360 clv
+          dbt build --project-dir dbt_project --profiles-dir dbt_project --exclude +int_identity_edges
