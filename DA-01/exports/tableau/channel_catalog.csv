@@ -1,0 +1,13 @@
+channel_group,channel_type,is_paid,sort_order,color_hex
+Paid Search,Paid,True,1,#1F77B4
+Paid Social,Paid,True,2,#FF7F0E
+Display,Paid,True,3,#2CA02C
+Affiliate,Paid,True,4,#D62728
+Email,Owned,False,5,#9467BD
+App Push,Owned,False,6,#8C564B
+Organic Search,Earned,False,7,#E377C2
+Organic Social,Earned,False,8,#BCBD22
+Referral,Earned,False,9,#17BECF
+Direct,Direct,False,10,#7F7F7F
+Other,Other,False,11,#AEC7E8
+Unattributed,Unattributed,False,12,#C7C7C7

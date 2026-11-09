@@ -1,0 +1,13 @@
+{
+  "generate": 31.7,
+  "dbt_seed": 9.5,
+  "dbt_stage1_staging_and_identity_edges": 7.4,
+  "python_identity_resolution": 1.2,
+  "python_clv_bgnbd": 1.9,
+  "dbt_stage2_marts_and_tests": 9.3,
+  "python_budget_recommendation": 3.5,
+  "python_evaluate": 2.0,
+  "python_report": 3.7,
+  "python_export_tableau": 0.8,
+  "total": 71.0
+}

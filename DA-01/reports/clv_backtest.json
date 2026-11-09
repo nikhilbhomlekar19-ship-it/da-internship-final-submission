@@ -1,0 +1,87 @@
+{
+  "calibration_end": "2020-10-31",
+  "holdout_end": "2021-01-31",
+  "customers": 1178,
+  "bgnbd_params": {
+    "r": 0.5853,
+    "alpha": 11.313,
+    "a": 0.8916,
+    "b": 2.5227
+  },
+  "holdout_repeat_orders_actual": 452.0,
+  "holdout_repeat_orders_predicted": 417.2,
+  "total_orders_error_pct": -7.69,
+  "mae_per_customer_model": 0.4954,
+  "mae_per_customer_naive_runrate": 0.5625,
+  "mae_improvement_vs_naive_pct": 11.9,
+  "correlation_pred_vs_actual": 0.3607,
+  "aov_mape_model_pct": 54.9,
+  "aov_mape_population_mean_pct": 57.5,
+  "gamma_gamma_params": {
+    "p": 10.7394,
+    "q": 2.7826,
+    "v": 9.7224
+  },
+  "decile_calibration": [
+    {
+      "decile": 1,
+      "customers": 118,
+      "predicted": 0.1146,
+      "actual": 0.1271
+    },
+    {
+      "decile": 2,
+      "customers": 118,
+      "predicted": 0.1455,
+      "actual": 0.2034
+    },
+    {
+      "decile": 3,
+      "customers": 118,
+      "predicted": 0.1732,
+      "actual": 0.1525
+    },
+    {
+      "decile": 4,
+      "customers": 117,
+      "predicted": 0.2064,
+      "actual": 0.2051
+    },
+    {
+      "decile": 5,
+      "customers": 118,
+      "predicted": 0.2489,
+      "actual": 0.3814
+    },
+    {
+      "decile": 6,
+      "customers": 118,
+      "predicted": 0.2983,
+      "actual": 0.4492
+    },
+    {
+      "decile": 7,
+      "customers": 117,
+      "predicted": 0.3631,
+      "actual": 0.4615
+    },
+    {
+      "decile": 8,
+      "customers": 118,
+      "predicted": 0.4351,
+      "actual": 0.4237
+    },
+    {
+      "decile": 9,
+      "customers": 118,
+      "predicted": 0.5394,
+      "actual": 0.4576
+    },
+    {
+      "decile": 10,
+      "customers": 118,
+      "predicted": 1.0162,
+      "actual": 0.9746
+    }
+  ]
+}

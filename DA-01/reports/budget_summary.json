@@ -1,0 +1,48 @@
+{
+  "total_paid_budget": 28787.02,
+  "campaigns": 11,
+  "budget_moved": 1757.64,
+  "budget_moved_pct": 6.1,
+  "projected_revenue_change_by_model": {
+    "first_touch": 2005.0,
+    "last_touch": 1370.0,
+    "linear": 1821.0,
+    "time_decay": 1774.0
+  },
+  "projected_revenue_change_pct_by_model": {
+    "first_touch": 2.9,
+    "last_touch": 2.0,
+    "linear": 2.6,
+    "time_decay": 2.6
+  },
+  "worst_case_change_pct": 2.0,
+  "mean_change_pct": 2.5,
+  "scale_up": [
+    "bing|cpc|brand_core",
+    "impact|affiliate|content_partners",
+    "google|cpc|generic_apparel"
+  ],
+  "cut": [],
+  "test_incrementality": [
+    "cj|affiliate|coupon_sites",
+    "google|cpc|brand_core",
+    "tiktok|paid_social|spark_ugc",
+    "facebook|paid_social|lal_prospecting",
+    "facebook|paid_social|dpa_retargeting",
+    "google|display|rmkt_banner",
+    "dv360|display|prospecting_banner"
+  ],
+  "elasticity_by_campaign": {
+    "bing|cpc|brand_core": 0.566,
+    "impact|affiliate|content_partners": 0.686,
+    "google|cpc|generic_apparel": 0.63,
+    "cj|affiliate|coupon_sites": 0.598,
+    "google|cpc|pmax_shopping": 0.643,
+    "google|cpc|brand_core": 0.418,
+    "tiktok|paid_social|spark_ugc": 0.513,
+    "facebook|paid_social|lal_prospecting": 0.614,
+    "facebook|paid_social|dpa_retargeting": 0.502,
+    "google|display|rmkt_banner": 0.508,
+    "dv360|display|prospecting_banner": 0.689
+  }
+}

@@ -1,0 +1,392 @@
+{
+  "generated_at": "2026-11-08T10:37:09",
+  "target": "duckdb",
+  "reconciliation": {
+    "online_orders_in_window": 2213,
+    "online_orders_found_in_tracking": 2123,
+    "online_order_match_rate": 0.9593,
+    "web_order_ga4_match_rate": 0.9507,
+    "tracked_orders_with_exact_revenue_match": 0.9736,
+    "mean_abs_revenue_gap_usd": 0.144,
+    "ga4_purchase_events": 1762,
+    "ga4_unique_transactions": 1737,
+    "ga4_duplicate_purchase_events_removed": 25,
+    "revenue_attributed_to_a_channel_pct": {
+      "first_touch": 95.0,
+      "last_touch": 95.0,
+      "linear": 95.0,
+      "time_decay": 95.0
+    }
+  },
+  "attribution_sql_vs_python_parity": {
+    "max_abs_revenue_diff_usd": 0.000495,
+    "max_abs_order_diff": 1e-05,
+    "rows_compared": 44
+  },
+  "identity_resolution": {
+    "sessions_evaluated": 12592,
+    "session_link_rate": 0.9382,
+    "guarded": {
+      "precision": 0.9725,
+      "recall": 0.9515,
+      "f1": 0.9619,
+      "false_merged_person_clusters": 2,
+      "crm_duplicate_recall": 1.0
+    },
+    "naive_connected_components": {
+      "precision": 0.9661,
+      "recall": 0.956,
+      "f1": 0.961,
+      "false_merged_person_clusters": 53,
+      "crm_duplicate_recall": 1.0
+    },
+    "crm_duplicate_people_in_truth": 76,
+    "shared_devices": {
+      "truly_shared": 53,
+      "flagged": 51,
+      "flagged_correctly": 51,
+      "precision": 1.0,
+      "recall": 0.9623
+    },
+    "channel_classification_accuracy": 1.0,
+    "session_keys_matching_truth": 1.0
+  },
+  "attribution_vs_ground_truth": {
+    "orders_evaluated": 1945,
+    "note": "TVD = total variation distance of revenue shares vs ground truth (0 = perfect, 1 = completely different)",
+    "default_policy_dbt": {
+      "first_touch": {
+        "channel_tvd": 0.1285,
+        "campaign_tvd": 0.1485,
+        "campaign_roas_spearman": 0.736,
+        "top3_campaigns_overlap": 2
+      },
+      "last_touch": {
+        "channel_tvd": 0.1184,
+        "campaign_tvd": 0.2635,
+        "campaign_roas_spearman": 0.291,
+        "top3_campaigns_overlap": 1
+      },
+      "linear": {
+        "channel_tvd": 0.0529,
+        "campaign_tvd": 0.103,
+        "campaign_roas_spearman": 0.873,
+        "top3_campaigns_overlap": 2
+      },
+      "time_decay": {
+        "channel_tvd": 0.0601,
+        "campaign_tvd": 0.1212,
+        "campaign_roas_spearman": 0.718,
+        "top3_campaigns_overlap": 2
+      }
+    },
+    "direct_policy_deprioritize": {
+      "first_touch": {
+        "channel_tvd": 0.1285,
+        "campaign_tvd": 0.1485,
+        "campaign_roas_spearman": 0.736,
+        "top3_campaigns_overlap": 2
+      },
+      "last_touch": {
+        "channel_tvd": 0.1184,
+        "campaign_tvd": 0.2635,
+        "campaign_roas_spearman": 0.291,
+        "top3_campaigns_overlap": 1
+      },
+      "linear": {
+        "channel_tvd": 0.0529,
+        "campaign_tvd": 0.103,
+        "campaign_roas_spearman": 0.873,
+        "top3_campaigns_overlap": 2
+      },
+      "time_decay": {
+        "channel_tvd": 0.0601,
+        "campaign_tvd": 0.1212,
+        "campaign_roas_spearman": 0.718,
+        "top3_campaigns_overlap": 2
+      }
+    },
+    "direct_policy_include": {
+      "first_touch": {
+        "channel_tvd": 0.1113,
+        "campaign_tvd": 0.1359,
+        "campaign_roas_spearman": 0.745,
+        "top3_campaigns_overlap": 2
+      },
+      "last_touch": {
+        "channel_tvd": 0.1413,
+        "campaign_tvd": 0.3181,
+        "campaign_roas_spearman": 0.309,
+        "top3_campaigns_overlap": 1
+      },
+      "linear": {
+        "channel_tvd": 0.0615,
+        "campaign_tvd": 0.1129,
+        "campaign_roas_spearman": 0.827,
+        "top3_campaigns_overlap": 2
+      },
+      "time_decay": {
+        "channel_tvd": 0.062,
+        "campaign_tvd": 0.1409,
+        "campaign_roas_spearman": 0.709,
+        "top3_campaigns_overlap": 2
+      }
+    },
+    "uniform_baseline_channel_tvd": 0.358,
+    "truth_channel_share_pct": {
+      "Paid Search": 34.5,
+      "Paid Social": 20.2,
+      "Organic Search": 11.1,
+      "Email": 9.2,
+      "Affiliate": 8.8,
+      "Display": 6.3,
+      "Direct": 5.3,
+      "Organic Social": 2.3,
+      "Referral": 2.0,
+      "App Push": 0.2
+    },
+    "truth_campaign_roas": {
+      "google|cpc|generic_apparel": 4.08,
+      "bing|cpc|brand_core": 3.56,
+      "impact|affiliate|content_partners": 3.41,
+      "tiktok|paid_social|spark_ugc": 3.05,
+      "google|cpc|pmax_shopping": 2.91,
+      "google|cpc|brand_core": 2.45,
+      "facebook|paid_social|dpa_retargeting": 2.2,
+      "cj|affiliate|coupon_sites": 1.67,
+      "facebook|paid_social|lal_prospecting": 1.5,
+      "google|display|rmkt_banner": 1.49,
+      "dv360|display|prospecting_banner": 0.98
+    }
+  },
+  "response_curve_recovery": {
+    "campaigns": 11,
+    "mean_abs_error": 0.143,
+    "max_abs_error": 0.287,
+    "within_0_15": 6,
+    "estimated_vs_true": {
+      "bing|cpc|brand_core": [
+        0.57,
+        0.67
+      ],
+      "impact|affiliate|content_partners": [
+        0.69,
+        0.77
+      ],
+      "google|cpc|generic_apparel": [
+        0.63,
+        0.77
+      ],
+      "cj|affiliate|coupon_sites": [
+        0.6,
+        0.62
+      ],
+      "google|cpc|pmax_shopping": [
+        0.64,
+        0.74
+      ],
+      "google|cpc|brand_core": [
+        0.42,
+        0.65
+      ],
+      "tiktok|paid_social|spark_ugc": [
+        0.51,
+        0.8
+      ],
+      "facebook|paid_social|lal_prospecting": [
+        0.61,
+        0.77
+      ],
+      "facebook|paid_social|dpa_retargeting": [
+        0.5,
+        0.67
+      ],
+      "google|display|rmkt_banner": [
+        0.51,
+        0.69
+      ],
+      "dv360|display|prospecting_banner": [
+        0.69,
+        0.8
+      ]
+    }
+  },
+  "clv_backtest": {
+    "calibration_end": "2020-10-31",
+    "holdout_end": "2021-01-31",
+    "customers": 1178,
+    "bgnbd_params": {
+      "r": 0.5853,
+      "alpha": 11.313,
+      "a": 0.8916,
+      "b": 2.5227
+    },
+    "holdout_repeat_orders_actual": 452.0,
+    "holdout_repeat_orders_predicted": 417.2,
+    "total_orders_error_pct": -7.69,
+    "mae_per_customer_model": 0.4954,
+    "mae_per_customer_naive_runrate": 0.5625,
+    "mae_improvement_vs_naive_pct": 11.9,
+    "correlation_pred_vs_actual": 0.3607,
+    "aov_mape_model_pct": 54.9,
+    "aov_mape_population_mean_pct": 57.5,
+    "gamma_gamma_params": {
+      "p": 10.7394,
+      "q": 2.7826,
+      "v": 9.7224
+    },
+    "decile_calibration": [
+      {
+        "decile": 1,
+        "customers": 118,
+        "predicted": 0.1146,
+        "actual": 0.1271
+      },
+      {
+        "decile": 2,
+        "customers": 118,
+        "predicted": 0.1455,
+        "actual": 0.2034
+      },
+      {
+        "decile": 3,
+        "customers": 118,
+        "predicted": 0.1732,
+        "actual": 0.1525
+      },
+      {
+        "decile": 4,
+        "customers": 117,
+        "predicted": 0.2064,
+        "actual": 0.2051
+      },
+      {
+        "decile": 5,
+        "customers": 118,
+        "predicted": 0.2489,
+        "actual": 0.3814
+      },
+      {
+        "decile": 6,
+        "customers": 118,
+        "predicted": 0.2983,
+        "actual": 0.4492
+      },
+      {
+        "decile": 7,
+        "customers": 117,
+        "predicted": 0.3631,
+        "actual": 0.4615
+      },
+      {
+        "decile": 8,
+        "customers": 118,
+        "predicted": 0.4351,
+        "actual": 0.4237
+      },
+      {
+        "decile": 9,
+        "customers": 118,
+        "predicted": 0.5394,
+        "actual": 0.4576
+      },
+      {
+        "decile": 10,
+        "customers": 118,
+        "predicted": 1.0162,
+        "actual": 0.9746
+      }
+    ]
+  },
+  "budget_recommendation": {
+    "total_paid_budget": 28787.02,
+    "campaigns": 11,
+    "budget_moved": 1757.64,
+    "budget_moved_pct": 6.1,
+    "projected_revenue_change_by_model": {
+      "first_touch": 2005.0,
+      "last_touch": 1370.0,
+      "linear": 1821.0,
+      "time_decay": 1774.0
+    },
+    "projected_revenue_change_pct_by_model": {
+      "first_touch": 2.9,
+      "last_touch": 2.0,
+      "linear": 2.6,
+      "time_decay": 2.6
+    },
+    "worst_case_change_pct": 2.0,
+    "mean_change_pct": 2.5,
+    "scale_up": [
+      "bing|cpc|brand_core",
+      "impact|affiliate|content_partners",
+      "google|cpc|generic_apparel"
+    ],
+    "cut": [],
+    "test_incrementality": [
+      "cj|affiliate|coupon_sites",
+      "google|cpc|brand_core",
+      "tiktok|paid_social|spark_ugc",
+      "facebook|paid_social|lal_prospecting",
+      "facebook|paid_social|dpa_retargeting",
+      "google|display|rmkt_banner",
+      "dv360|display|prospecting_banner"
+    ],
+    "elasticity_by_campaign": {
+      "bing|cpc|brand_core": 0.566,
+      "impact|affiliate|content_partners": 0.686,
+      "google|cpc|generic_apparel": 0.63,
+      "cj|affiliate|coupon_sites": 0.598,
+      "google|cpc|pmax_shopping": 0.643,
+      "google|cpc|brand_core": 0.418,
+      "tiktok|paid_social|spark_ugc": 0.513,
+      "facebook|paid_social|lal_prospecting": 0.614,
+      "facebook|paid_social|dpa_retargeting": 0.502,
+      "google|display|rmkt_banner": 0.508,
+      "dv360|display|prospecting_banner": 0.689
+    }
+  },
+  "pipeline_timings_seconds": {
+    "generate": 31.7,
+    "dbt_seed": 9.5,
+    "dbt_stage1_staging_and_identity_edges": 7.4,
+    "python_identity_resolution": 1.2,
+    "python_clv_bgnbd": 1.9,
+    "dbt_stage2_marts_and_tests": 9.3,
+    "python_budget_recommendation": 3.5,
+    "python_evaluate": 2.0,
+    "python_report": 3.7,
+    "python_export_tableau": 0.8,
+    "total": 71.0
+  },
+  "data_volumes": {
+    "persons": 6000,
+    "crm_customers": 3376,
+    "crm_orders": 4755,
+    "orders_in_window": 2237,
+    "online_orders_in_window": 2213,
+    "online_orders_tracked": 2123,
+    "sessions_web": 60429,
+    "sessions_app": 1995,
+    "ga4_events": 265437,
+    "segment_tracks": 8774,
+    "segment_identifies": 3226,
+    "paid_spend": 28787.03,
+    "online_net_revenue": 97875.9,
+    "ga4_events_loaded": 265437
+  },
+  "dbt": {
+    "models": {
+      "success": 25
+    },
+    "tests": {
+      "pass": 80
+    },
+    "unit_tests": {
+      "pass": 3
+    },
+    "seeds": {
+      "success": 1
+    }
+  }
+}
