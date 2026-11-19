@@ -73,7 +73,7 @@ Details, costs and troubleshooting: [`docs/01_implementation_guide.md`](docs/01_
 | Deliverable | Where |
 |---|---|
 | Working demo | Streamlit app (`app/`), recording plan in [`docs/07_final_presentation.md`](docs/07_final_presentation.md) |
-| GitHub repo, clean commits, README, setup | this repo (git history included), [`docs/01_implementation_guide.md`](docs/01_implementation_guide.md), CI in `.github/workflows/ci.yml` |
+| GitHub repo, clean commits, README, setup | this repo (git history included), [`docs/01_implementation_guide.md`](docs/01_implementation_guide.md), CI in [`../.github/workflows/da-01.yml`](../.github/workflows/da-01.yml) |
 | Architecture diagram + data/API docs | [`docs/diagrams/`](docs/diagrams), [`docs/02_architecture.md`](docs/02_architecture.md), [`docs/03_data_dictionary.md`](docs/03_data_dictionary.md), `segment/tracking_plan.yaml`, dbt docs (`make docs`) |
 | Test results + accuracy numbers | [`docs/06_test_results.md`](docs/06_test_results.md), `reports/metrics.json` |
 | 10-minute presentation | [`docs/07_final_presentation.md`](docs/07_final_presentation.md) (slide-by-slide script, timings, demo plan, Q&A) |
