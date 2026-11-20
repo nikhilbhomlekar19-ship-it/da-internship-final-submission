@@ -1,0 +1,12 @@
+data/*
+!data/README.md
+.cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.pbix
+.pbi/
+**/.pbi/localSettings.json
+**/cache.abf
+tests/results/sql_tests_*.txt
+.env
