@@ -1,0 +1,8 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "p_eb2bc95a035e5bf4a3",
+  "displayName": "Supply Chain",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280
+}

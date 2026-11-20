@@ -1,0 +1,116 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
+  "name": "cc4883f26aaf59eead22",
+  "position": {
+    "x": 648,
+    "y": 450,
+    "z": 1400,
+    "height": 254,
+    "width": 616,
+    "tabOrder": 1400
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Department"
+                    }
+                  },
+                  "Property": "Department"
+                }
+              },
+              "queryRef": "Department.Department",
+              "nativeQueryRef": "Department"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Headcount"
+                }
+              },
+              "queryRef": "_Measures.Headcount",
+              "nativeQueryRef": "Headcount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Avg Tenure (Years)"
+                }
+              },
+              "queryRef": "_Measures.Avg Tenure (Years)",
+              "nativeQueryRef": "Avg Tenure (Years)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Est. Payroll Cost"
+                }
+              },
+              "queryRef": "_Measures.Est. Payroll Cost",
+              "nativeQueryRef": "Est. Payroll Cost"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Avg Monthly Cost per Employee"
+                }
+              },
+              "queryRef": "_Measures.Avg Monthly Cost per Employee",
+              "nativeQueryRef": "Avg Monthly Cost per Employee"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Departments'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

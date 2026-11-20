@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "p_fabd730a3e545450af",
+  "displayName": "Product Detail",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "f_fabd730a3e545450af",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Product"
+              }
+            },
+            "Property": "Product"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "b_fabd730a3e545450af",
+    "type": "Drillthrough",
+    "acceptsFilterContext": "Default",
+    "parameters": [
+      {
+        "name": "pm_fabd730a3e545450af",
+        "boundFilter": "f_fabd730a3e545450af",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Product"
+              }
+            },
+            "Property": "Product"
+          }
+        }
+      }
+    ]
+  }
+}
