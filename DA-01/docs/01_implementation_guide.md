@@ -131,8 +131,6 @@ Follow [05_tableau_guide.md](05_tableau_guide.md): connect to BigQuery (or load 
 * Branch per piece of work (`feat/identity-guard`, `fix/utm-normalisation`), small commits with an imperative subject: `feat(dbt): add RFM segments`, `test(identity): shared-device guard`, `docs: methodology`.
 * A pull request is ready when `make test-fast` is green and, for model changes, `make demo` still ends with all dbt tests passing.
 * CI (`.github/workflows/da-01.yml` at the repository root, run from `DA-01/`) runs the unit tests, the offline BigQuery SQL validation and the end-to-end pipeline on a tiny dataset.
-* The repository history was organised into reviewable commits (scaffolding, data generation, dbt staging, identity, ...). Re-author them with your name/e-mail before pushing:
-  `git rebase -r --root --exec 'git commit --amend --reset-author --no-edit'`
 
 ## F. Troubleshooting
 
