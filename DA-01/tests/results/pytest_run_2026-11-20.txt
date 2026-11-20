@@ -1,0 +1,55 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python
+cachedir: .pytest_cache
+rootdir: /home/claude/submission/da-internship-final-submission/DA-01
+configfile: pytest.ini
+testpaths: tests
+plugins: platformdirs-4.13.0, Faker-40.54.0, anyio-4.16.0
+collecting ... collected 33 items / 1 deselected / 32 selected
+
+tests/test_attribution.py::test_credits_sum_to_one_per_order_and_model PASSED [  3%]
+tests/test_attribution.py::test_model_semantics_with_direct_deprioritised PASSED [  6%]
+tests/test_attribution.py::test_direct_included_when_policy_says_so PASSED [  9%]
+tests/test_attribution.py::test_direct_only_path_still_gets_credit PASSED [ 12%]
+tests/test_attribution.py::test_lookback_and_future_touches_excluded PASSED [ 15%]
+tests/test_attribution.py::test_half_life_halves_weight PASSED           [ 18%]
+tests/test_attribution.py::test_total_variation_bounds PASSED            [ 21%]
+tests/test_bigquery_sql.py::test_all_models_and_tests_compile_to_valid_bigquery_sql PASSED [ 25%]
+tests/test_clv.py::test_bgnbd_recovers_parameters PASSED                 [ 28%]
+tests/test_clv.py::test_bgnbd_forecast_is_calibrated_on_holdout PASSED   [ 31%]
+tests/test_clv.py::test_expectation_is_monotone_and_alive_prob_valid PASSED [ 34%]
+tests/test_clv.py::test_gamma_gamma_shrinks_towards_population_mean PASSED [ 37%]
+tests/test_datagen.py::test_referential_integrity PASSED                 [ 40%]
+tests/test_datagen.py::test_ga4_events_have_session_ids_and_duplicates_exist PASSED [ 43%]
+tests/test_datagen.py::test_ad_spend_matches_target_mer PASSED           [ 46%]
+tests/test_datagen.py::test_truth_tables_cover_all_sessions PASSED       [ 50%]
+tests/test_datagen.py::test_build_from_anchor_keeps_real_transaction_ids PASSED [ 53%]
+tests/test_datagen.py::test_segment_replay_builds_valid_spec_calls PASSED [ 56%]
+tests/test_identity.py::test_crm_duplicates_are_merged PASSED            [ 59%]
+tests/test_identity.py::test_devices_are_stitched_through_identify_and_bridge PASSED [ 62%]
+tests/test_identity.py::test_shared_device_does_not_merge_two_people_but_naive_does PASSED [ 65%]
+tests/test_identity.py::test_unlinked_devices_are_not_in_output PASSED   [ 68%]
+tests/test_identity.py::test_node_keys_are_unique_and_person_ids_stable PASSED [ 71%]
+tests/test_recommend.py::test_allocation_is_budget_neutral_and_respects_bands PASSED [ 75%]
+tests/test_recommend.py::test_equal_campaigns_get_equal_money PASSED     [ 78%]
+tests/test_recommend.py::test_noisy_elasticity_shrinks_to_prior PASSED   [ 81%]
+tests/test_streamlit_app.py::test_every_page_renders_without_exceptions[Overview] PASSED [ 84%]
+tests/test_streamlit_app.py::test_every_page_renders_without_exceptions[Attribution models] PASSED [ 87%]
+tests/test_streamlit_app.py::test_every_page_renders_without_exceptions[Campaign ROI] PASSED [ 90%]
+tests/test_streamlit_app.py::test_every_page_renders_without_exceptions[Budget recommendation] PASSED [ 93%]
+tests/test_streamlit_app.py::test_every_page_renders_without_exceptions[Customer 360] PASSED [ 96%]
+tests/test_streamlit_app.py::test_every_page_renders_without_exceptions[Data quality] PASSED [100%]
+
+====================== 32 passed, 1 deselected in 33.75s =======================
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python
+cachedir: .pytest_cache
+rootdir: /home/claude/submission/da-internship-final-submission/DA-01
+configfile: pytest.ini
+testpaths: tests
+plugins: platformdirs-4.13.0, Faker-40.54.0, anyio-4.16.0
+collecting ... collected 33 items / 32 deselected / 1 selected
+
+tests/test_pipeline_integration.py::test_small_pipeline_runs_green PASSED [100%]
+
+====================== 1 passed, 32 deselected in 25.07s =======================
