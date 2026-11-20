@@ -1,0 +1,19 @@
+DuckDB reference build of the full warehouse from the real AdventureWorks CSVs: 1.7 s (1 vCPU sandbox; NOT a SQL Server performance number)
+date_range: ('2006-01-01', '2025-10-31')
+dim_territory: 11
+dim_product: 505
+dim_customer: 19821
+dim_salesperson: 18
+dim_employee: 291
+dim_department: 17
+dim_vendor: 105
+dim_special_offer: 17
+dim_ship_method: 6
+dim_location: 15
+fact_sales_line: 121317
+fact_sales_quota: 489
+fact_purchase_line: 8845
+fact_inventory: 1069
+fact_headcount_monthly: 57395
+fact_payroll_monthly: 5203
+dim_date rows: 7244

@@ -1,0 +1,23 @@
+== python tools/build_repo.py --check
+generated files are up to date
+
+== python tools/lint_sql.py
+00_create_database.sql       parsed=  1 command-only=  1 errors=0
+01_framework.sql             parsed= 11 command-only=  0 errors=0
+02_staging.sql               parsed= 33 command-only=  0 errors=0
+02b_source_synonyms.sql      parsed=  1 command-only=  1 errors=0
+03_dw_schema.sql             parsed= 19 command-only=  0 errors=0
+04_security.sql              parsed=  4 command-only=  1 errors=0
+05_etl_dim_date.sql          parsed=  1 command-only=  0 errors=0
+06_etl_dimensions.sql        parsed= 10 command-only=  0 errors=0
+07_etl_facts.sql             parsed=  6 command-only=  0 errors=0
+08_etl_orchestration.sql     parsed=  3 command-only=  0 errors=0
+09_dq_checks.sql             parsed=  3 command-only=  0 errors=0
+10_rpt_views.sql             parsed= 18 command-only=  0 errors=0
+11_sql_agent_job.sql         parsed=  4 command-only=  0 errors=0
+TOTAL parsed=114 command-only=3 errors=0
+
+== python tools/validate_model.py
+JSON schema: 108 files valid, 0 invalid
+DAX: 58 measures checked | report field references checked: 178 | TMDL files checked: 25
+RESULT: OK (0 errors)

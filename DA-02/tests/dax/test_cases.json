@@ -1,0 +1,338 @@
+[
+ {
+  "name": "sales: net sales (total)",
+  "dax": "EVALUATE ROW ( \"v\", [Net Sales] )",
+  "expected": 109846381.39988798,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: COGS (total)",
+  "dax": "EVALUATE ROW ( \"v\", [COGS] )",
+  "expected": 97288600.8008,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: gross margin % (total)",
+  "dax": "EVALUATE ROW ( \"v\", [Gross Margin %] )",
+  "expected": 0.11432129524023438,
+  "tolerance": 1e-06
+ },
+ {
+  "name": "sales: total billed (= SUM TotalDue)",
+  "dax": "EVALUATE ROW ( \"v\", [Total Billed] )",
+  "expected": 123216786.11590001,
+  "tolerance": 1.0
+ },
+ {
+  "name": "sales: orders",
+  "dax": "EVALUATE ROW ( \"v\", [Orders] )",
+  "expected": 31465,
+  "tolerance": 0
+ },
+ {
+  "name": "sales: net sales FY2022",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], 'Date'[Fiscal Year] = 2022 ) )",
+  "expected": 2519016.403838,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales FY2023",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], 'Date'[Fiscal Year] = 2023 ) )",
+  "expected": 27353016.205103,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales FY2024",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], 'Date'[Fiscal Year] = 2024 ) )",
+  "expected": 34987307.95844,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales FY2025",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], 'Date'[Fiscal Year] = 2025 ) )",
+  "expected": 44987040.832507,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory Northwest",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"Northwest\" ) )",
+  "expected": 16084942.547585,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory Northeast",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"Northeast\" ) )",
+  "expected": 6939374.481005,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory Central",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"Central\" ) )",
+  "expected": 7909009.005872,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory Southwest",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"Southwest\" ) )",
+  "expected": 24184609.60081,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory Southeast",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"Southeast\" ) )",
+  "expected": 7879655.072151,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory Canada",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"Canada\" ) )",
+  "expected": 16355770.454862,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory France",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"France\" ) )",
+  "expected": 7251555.646926,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory Germany",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"Germany\" ) )",
+  "expected": 4915407.595885,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory Australia",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"Australia\" ) )",
+  "expected": 10655335.959317,
+  "tolerance": 0.5
+ },
+ {
+  "name": "sales: net sales territory United Kingdom",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales], Territory[Territory] = \"United Kingdom\" ) )",
+  "expected": 7670721.035475,
+  "tolerance": 0.5
+ },
+ {
+  "name": "time intel: YoY growth FY2025",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales YoY Growth %], 'Date'[Fiscal Year] = 2025 ) )",
+  "expected": 0.2858102968638021,
+  "tolerance": 1e-06
+ },
+ {
+  "name": "time intel: fiscal YTD at Dec-2024",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales YTD (Fiscal)], 'Date'[Year Month Number] = 202412 ) )",
+  "expected": 24978522.471642,
+  "tolerance": 0.5
+ },
+ {
+  "name": "time intel: rolling 3M average at Jun-2025",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Net Sales Rolling 3M Avg], 'Date'[Year Month Number] = 202506 ) )",
+  "expected": 2392769.927446,
+  "tolerance": 0.5
+ },
+ {
+  "name": "finance: gross margin % FY2024",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Gross Margin %], 'Date'[Fiscal Year] = 2024 ) )",
+  "expected": 0.08857744832272552,
+  "tolerance": 1e-06
+ },
+ {
+  "name": "quota: quota FY2024",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Sales Quota], 'Date'[Fiscal Year] = 2024 ) )",
+  "expected": 36339000.0,
+  "tolerance": 0.5
+ },
+ {
+  "name": "quota: attainment FY2024",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Quota Attainment %], 'Date'[Fiscal Year] = 2024 ) )",
+  "expected": 0.7929536243743637,
+  "tolerance": 1e-06
+ },
+ {
+  "name": "supply chain: purchase spend",
+  "dax": "EVALUATE ROW ( \"v\", [Purchase Spend] )",
+  "expected": 63791994.838,
+  "tolerance": 0.5
+ },
+ {
+  "name": "supply chain: on-time delivery %",
+  "dax": "EVALUATE ROW ( \"v\", [On-Time Delivery %] )",
+  "expected": 0.999208592425099,
+  "tolerance": 1e-06
+ },
+ {
+  "name": "supply chain: receipt fill rate %",
+  "dax": "EVALUATE ROW ( \"v\", [Receipt Fill Rate %] )",
+  "expected": 0.9909147305437154,
+  "tolerance": 1e-06
+ },
+ {
+  "name": "supply chain: reject rate %",
+  "dax": "EVALUATE ROW ( \"v\", [Reject Rate %] )",
+  "expected": 0.03123792860307163,
+  "tolerance": 1e-06
+ },
+ {
+  "name": "supply chain: inventory value",
+  "dax": "EVALUATE ROW ( \"v\", [Inventory Value] )",
+  "expected": 20092679.1712,
+  "tolerance": 0.5
+ },
+ {
+  "name": "supply chain: products below reorder point",
+  "dax": "EVALUATE ROW ( \"v\", [Products Below Reorder Point] )",
+  "expected": 7,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Dec-2010",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 201012 ) )",
+  "expected": 267,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506 ) )",
+  "expected": 290,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: est. payroll cost Jun-2025",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Est. Payroll Cost], 'Date'[Year Month Number] = 202506 ) )",
+  "expected": 914262.8535135202,
+  "tolerance": 1.0
+ },
+ {
+  "name": "supply chain: purchase spend, vendor region Northwest",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Purchase Spend], Territory[Territory] = \"Northwest\" ) )",
+  "expected": 24427788.4015,
+  "tolerance": 0.5
+ },
+ {
+  "name": "supply chain: purchase spend, vendor region Northeast",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Purchase Spend], Territory[Territory] = \"Northeast\" ) )",
+  "expected": 1105138.6500000001,
+  "tolerance": 0.5
+ },
+ {
+  "name": "supply chain: purchase spend, vendor region Central",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Purchase Spend], Territory[Territory] = \"Central\" ) )",
+  "expected": 3504328.15,
+  "tolerance": 0.5
+ },
+ {
+  "name": "supply chain: purchase spend, vendor region Southwest",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Purchase Spend], Territory[Territory] = \"Southwest\" ) )",
+  "expected": 33232468.4,
+  "tolerance": 0.5
+ },
+ {
+  "name": "supply chain: purchase spend, vendor region Southeast",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Purchase Spend], Territory[Territory] = \"Southeast\" ) )",
+  "expected": 1522271.2364999999,
+  "tolerance": 0.5
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region Northwest",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"Northwest\" ) )",
+  "expected": 277,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region Northeast",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"Northeast\" ) )",
+  "expected": 1,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region Central",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"Central\" ) )",
+  "expected": 3,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region Southwest",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"Southwest\" ) )",
+  "expected": 2,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region Southeast",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"Southeast\" ) )",
+  "expected": 1,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region Canada",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"Canada\" ) )",
+  "expected": 2,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region France",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"France\" ) )",
+  "expected": 1,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region Germany",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"Germany\" ) )",
+  "expected": 1,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region Australia",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"Australia\" ) )",
+  "expected": 1,
+  "tolerance": 0
+ },
+ {
+  "name": "hr: headcount Jun-2025, home region United Kingdom",
+  "dax": "EVALUATE ROW ( \"v\", CALCULATE ( [Headcount], 'Date'[Year Month Number] = 202506, Territory[Territory] = \"United Kingdom\" ) )",
+  "expected": 1,
+  "tolerance": 0
+ },
+ {
+  "name": "rls: Northwest manager sees 1 territory",
+  "dax": "EVALUATE ROW ( \"v\", COALESCE ( [Territories Visible], 0 ) )",
+  "expected": 1,
+  "tolerance": 0,
+  "impersonate": "northwest.manager@contoso.com"
+ },
+ {
+  "name": "rls: Northwest manager net sales = Northwest only",
+  "dax": "EVALUATE ROW ( \"v\", COALESCE ( [Net Sales], 0 ) )",
+  "expected": 16084942.547585,
+  "tolerance": 0.5,
+  "impersonate": "northwest.manager@contoso.com"
+ },
+ {
+  "name": "rls: Canada manager net sales = Canada only",
+  "dax": "EVALUATE ROW ( \"v\", COALESCE ( [Net Sales], 0 ) )",
+  "expected": 16355770.454862,
+  "tolerance": 0.5,
+  "impersonate": "canada.manager@contoso.com"
+ },
+ {
+  "name": "rls: Europe director sees 3 territories",
+  "dax": "EVALUATE ROW ( \"v\", COALESCE ( [Territories Visible], 0 ) )",
+  "expected": 3,
+  "tolerance": 0,
+  "impersonate": "europe.director@contoso.com"
+ },
+ {
+  "name": "rls: Europe director net sales = FR+DE+UK",
+  "dax": "EVALUATE ROW ( \"v\", COALESCE ( [Net Sales], 0 ) )",
+  "expected": 19837684.278286,
+  "tolerance": 0.5,
+  "impersonate": "europe.director@contoso.com"
+ },
+ {
+  "name": "rls: unmapped user sees 0 territories (deny by default)",
+  "dax": "EVALUATE ROW ( \"v\", COALESCE ( [Territories Visible], 0 ) )",
+  "expected": 0,
+  "tolerance": 0,
+  "impersonate": "nobody@contoso.com"
+ }
+]
