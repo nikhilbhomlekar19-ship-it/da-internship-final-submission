@@ -1,0 +1,38 @@
+/// Shipping methods (sales and purchasing).
+table 'Ship Method'
+	lineageTag: 113d9cda-b3a0-52e5-9062-9e7c77c997f7
+
+	column 'Ship Method Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5f796d94-7d9f-5f3d-8d66-08c91553257f
+		summarizeBy: none
+		sourceColumn: Ship Method Key
+
+	column 'Ship Method ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e24f64c3-3f9a-5159-a5a9-b5df7f03a6eb
+		summarizeBy: none
+		sourceColumn: Ship Method ID
+
+	column 'Ship Method'
+		dataType: string
+		lineageTag: 1ff3f4a1-bdaa-56b3-bb19-3faf2a85c77f
+		summarizeBy: none
+		sourceColumn: Ship Method
+
+	partition 'Ship Method' = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_ship_method"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"ship_method_key", "Ship Method Key"}, {"ship_method_id", "Ship Method ID"}, {"ship_method_name", "Ship Method"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Ship Method", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Ship Method"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Ship Method Key", Int64.Type}, {"Ship Method ID", Int64.Type}, {"Ship Method", type text}})
+			in
+			    Typed

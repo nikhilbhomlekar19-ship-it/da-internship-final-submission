@@ -1,0 +1,54 @@
+/// Estimated payroll cost aggregated to department x region x month (rate x 173.33 h). Aggregated so individual pay is not exposed.
+table Payroll
+	lineageTag: b7077e12-a6db-55b9-8288-c433562d16b3
+
+	column 'Month End Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0899708f-9575-556f-bff0-870317a85da6
+		summarizeBy: none
+		sourceColumn: Month End Date Key
+
+	column 'Department Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1eb650f7-ce6c-5967-9323-8144d984f50a
+		summarizeBy: none
+		sourceColumn: Department Key
+
+	column 'Territory Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6df22da1-0ae1-511e-9fbd-70f534e310c2
+		summarizeBy: none
+		sourceColumn: Territory Key
+
+	column 'Employee Count'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cef635d3-cc71-5150-84b0-9b880fda0b26
+		summarizeBy: none
+		sourceColumn: Employee Count
+
+	column 'Estimated Payroll Cost'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 3825955e-8ba1-5f0b-94ae-d0d542ec8c6f
+		summarizeBy: none
+		sourceColumn: Estimated Payroll Cost
+
+	partition Payroll = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_fact_payroll_monthly"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"month_end_date_key", "Month End Date Key"}, {"department_key", "Department Key"}, {"territory_key", "Territory Key"}, {"employee_count", "Employee Count"}, {"estimated_payroll_cost", "Estimated Payroll Cost"}}),
+			    Typed = Table.TransformColumnTypes(Renamed, {{"Month End Date Key", Int64.Type}, {"Department Key", Int64.Type}, {"Territory Key", Int64.Type}, {"Employee Count", Int64.Type}, {"Estimated Payroll Cost", Currency.Type}})
+			in
+			    Typed

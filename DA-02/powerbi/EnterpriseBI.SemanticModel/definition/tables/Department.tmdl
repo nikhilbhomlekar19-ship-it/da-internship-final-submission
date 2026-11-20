@@ -1,0 +1,44 @@
+/// HR departments.
+table Department
+	lineageTag: df4d5c5d-ac58-526c-a2b9-0206e2f7d702
+
+	column 'Department Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 28b3e7bc-0508-5aa3-a17e-5c8d309a095a
+		summarizeBy: none
+		sourceColumn: Department Key
+
+	column 'Department ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9b919637-b7e9-5bcf-95eb-813047b6fcfb
+		summarizeBy: none
+		sourceColumn: Department ID
+
+	column Department
+		dataType: string
+		lineageTag: 16ac9547-f6b2-584a-a00e-109315da38b3
+		summarizeBy: none
+		sourceColumn: Department
+
+	column 'Department Group'
+		dataType: string
+		lineageTag: cafe3d9a-ab8d-5719-9608-18a04361f432
+		summarizeBy: none
+		sourceColumn: Department Group
+
+	partition Department = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_department"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"department_key", "Department Key"}, {"department_id", "Department ID"}, {"department_name", "Department"}, {"department_group", "Department Group"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Department", Text.Trim, type text}, {"Department Group", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Department", "Department Group"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Department Key", Int64.Type}, {"Department ID", Int64.Type}, {"Department", type text}, {"Department Group", type text}})
+			in
+			    Typed

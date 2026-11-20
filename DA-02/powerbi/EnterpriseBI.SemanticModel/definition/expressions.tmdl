@@ -1,0 +1,5 @@
+expression p_SqlServer = "localhost" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: cc5dda4d-ffeb-556b-b3f9-c52a97366177
+
+expression p_Database = "AW_BI" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: b4b5ee71-af0d-5a9a-9afc-2ca133afb75e

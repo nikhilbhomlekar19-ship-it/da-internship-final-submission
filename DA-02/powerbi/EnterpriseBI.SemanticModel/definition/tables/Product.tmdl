@@ -1,0 +1,178 @@
+/// Product with subcategory, category and model (SCD type 1).
+table Product
+	lineageTag: a72b7d36-900a-5d1c-a6e4-a68a67c5b324
+
+	column 'Product Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e9737a65-8fd0-5c23-be9e-d6370501f294
+		summarizeBy: none
+		sourceColumn: Product Key
+
+	column 'Product ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 83e4180e-a3ae-5a41-98b4-f12b46d64a7b
+		summarizeBy: none
+		sourceColumn: Product ID
+
+	column 'Product Number'
+		dataType: string
+		lineageTag: bcf81c39-d030-5c71-a6d8-6f2c80a812e0
+		summarizeBy: none
+		sourceColumn: Product Number
+
+	column Product
+		dataType: string
+		lineageTag: 6ae501bc-41b6-5dae-8c8d-e7cb7af5e1b4
+		summarizeBy: none
+		sourceColumn: Product
+
+	column 'Product Model'
+		dataType: string
+		lineageTag: 29eb5f3b-76ad-50b9-bc83-92f861d5d12e
+		summarizeBy: none
+		sourceColumn: Product Model
+
+	column 'Product Subcategory'
+		dataType: string
+		lineageTag: 8cc4fc00-1bf7-5398-b242-0304aa98e61a
+		summarizeBy: none
+		sourceColumn: Product Subcategory
+
+	column 'Product Category'
+		dataType: string
+		lineageTag: b8be1979-9b70-5054-8a53-5d37994abec5
+		summarizeBy: none
+		sourceColumn: Product Category
+
+	column Color
+		dataType: string
+		lineageTag: 87a6cbb8-5a97-59e0-a566-394c6f5c70a3
+		summarizeBy: none
+		sourceColumn: Color
+
+	column Size
+		dataType: string
+		lineageTag: 19fd7ae7-fd80-5ce5-95ed-0e6c6dc9346a
+		summarizeBy: none
+		sourceColumn: Size
+
+	column Weight
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 88e231aa-8b1f-5d85-918a-bbda0355f0ac
+		summarizeBy: none
+		sourceColumn: Weight
+
+	column 'Product Line'
+		dataType: string
+		lineageTag: 48189f40-e43a-5c90-8046-647da43a47b2
+		summarizeBy: none
+		sourceColumn: Product Line
+
+	column 'Product Class'
+		dataType: string
+		lineageTag: c1677b83-60e2-56d7-a244-ac15053d623d
+		summarizeBy: none
+		sourceColumn: Product Class
+
+	column 'Product Style'
+		dataType: string
+		lineageTag: 23489d48-0084-5737-89eb-4f4359304448
+		summarizeBy: none
+		sourceColumn: Product Style
+
+	column 'Make Or Buy'
+		dataType: string
+		lineageTag: 44a0577b-4614-52e6-83d1-1d54c7bfcd46
+		summarizeBy: none
+		sourceColumn: Make Or Buy
+
+	column 'Product Type'
+		dataType: string
+		lineageTag: 7b7eaf97-c3db-5607-8d46-687e695368dc
+		summarizeBy: none
+		sourceColumn: Product Type
+
+	column 'Standard Cost'
+		dataType: decimal
+		formatString: \$#,0.00
+		lineageTag: 11215b29-0fd1-5b58-8e55-90b22607276a
+		summarizeBy: none
+		sourceColumn: Standard Cost
+
+	column 'List Price'
+		dataType: decimal
+		formatString: \$#,0.00
+		lineageTag: 3310c0b8-30e4-5d58-8989-5a1a20cf82f9
+		summarizeBy: none
+		sourceColumn: List Price
+
+	column 'Safety Stock Level'
+		dataType: int64
+		formatString: 0
+		lineageTag: 6bb11ceb-f652-57e0-a7d6-31534e613735
+		summarizeBy: none
+		sourceColumn: Safety Stock Level
+
+	column 'Reorder Point'
+		dataType: int64
+		formatString: 0
+		lineageTag: 47ab2ec4-bc96-5393-9d2a-51a04224661a
+		summarizeBy: none
+		sourceColumn: Reorder Point
+
+	column 'Days To Manufacture'
+		dataType: int64
+		formatString: 0
+		lineageTag: 73fc9f80-912f-5298-a833-22e7c688d7ed
+		summarizeBy: none
+		sourceColumn: Days To Manufacture
+
+	column 'Sell Start Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		lineageTag: 6060ae85-69f4-51c9-8d25-af6fc808a69c
+		summarizeBy: none
+		sourceColumn: Sell Start Date
+
+	column 'Sell End Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		lineageTag: 178b5ce1-75d7-5257-90b7-8dfbb89b33a2
+		summarizeBy: none
+		sourceColumn: Sell End Date
+
+	column 'Lifecycle Status'
+		dataType: string
+		lineageTag: 4f95ef1c-9c9a-5353-8ac9-d313239b501d
+		summarizeBy: none
+		sourceColumn: Lifecycle Status
+
+	hierarchy 'Product Hierarchy'
+		lineageTag: b4513030-6cef-5cc8-824c-c1d562cd5890
+		level 'Product Category'
+			lineageTag: 892c8eb9-4f2a-504d-97b5-c05150d750f5
+			column: 'Product Category'
+		level 'Product Subcategory'
+			lineageTag: 52940c72-dd02-5c4c-bec7-f5f94e8b9d45
+			column: 'Product Subcategory'
+		level Product
+			lineageTag: ba80c82c-e585-5d92-ae09-24f8c3e5e14d
+			column: Product
+
+	partition Product = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_product"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"product_key", "Product Key"}, {"product_id", "Product ID"}, {"product_number", "Product Number"}, {"product_name", "Product"}, {"product_model", "Product Model"}, {"product_subcategory", "Product Subcategory"}, {"product_category", "Product Category"}, {"color", "Color"}, {"size", "Size"}, {"weight", "Weight"}, {"product_line", "Product Line"}, {"product_class", "Product Class"}, {"product_style", "Product Style"}, {"make_or_buy", "Make Or Buy"}, {"product_type", "Product Type"}, {"standard_cost", "Standard Cost"}, {"list_price", "List Price"}, {"safety_stock_level", "Safety Stock Level"}, {"reorder_point", "Reorder Point"}, {"days_to_manufacture", "Days To Manufacture"}, {"sell_start_date", "Sell Start Date"}, {"sell_end_date", "Sell End Date"}, {"lifecycle_status", "Lifecycle Status"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Product Number", Text.Trim, type text}, {"Product", Text.Trim, type text}, {"Product Model", Text.Trim, type text}, {"Product Subcategory", Text.Trim, type text}, {"Product Category", Text.Trim, type text}, {"Color", Text.Trim, type text}, {"Size", Text.Trim, type text}, {"Product Line", Text.Trim, type text}, {"Product Class", Text.Trim, type text}, {"Product Style", Text.Trim, type text}, {"Make Or Buy", Text.Trim, type text}, {"Product Type", Text.Trim, type text}, {"Lifecycle Status", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Product Number", "Product", "Product Model", "Product Subcategory", "Product Category", "Color", "Size", "Product Line", "Product Class", "Product Style", "Make Or Buy", "Product Type", "Lifecycle Status"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Product Key", Int64.Type}, {"Product ID", Int64.Type}, {"Product Number", type text}, {"Product", type text}, {"Product Model", type text}, {"Product Subcategory", type text}, {"Product Category", type text}, {"Color", type text}, {"Size", type text}, {"Weight", type number}, {"Product Line", type text}, {"Product Class", type text}, {"Product Style", type text}, {"Make Or Buy", type text}, {"Product Type", type text}, {"Standard Cost", Currency.Type}, {"List Price", Currency.Type}, {"Safety Stock Level", Int64.Type}, {"Reorder Point", Int64.Type}, {"Days To Manufacture", Int64.Type}, {"Sell Start Date", type date}, {"Sell End Date", type date}, {"Lifecycle Status", type text}})
+			in
+			    Typed

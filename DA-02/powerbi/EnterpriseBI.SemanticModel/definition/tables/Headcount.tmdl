@@ -1,0 +1,70 @@
+/// Month-end employee snapshot (department as of month end). No pay data.
+table Headcount
+	lineageTag: 24e26781-793e-55fe-8a21-62238f024430
+
+	column 'Month End Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 833dea6c-c2b0-5a0e-a208-edf9e6b1fbef
+		summarizeBy: none
+		sourceColumn: Month End Date Key
+
+	column 'Employee Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: fdd0e906-96c3-589e-b0f7-82626eb9a61a
+		summarizeBy: none
+		sourceColumn: Employee Key
+
+	column 'Department Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f27c50ab-22ff-52a0-b26b-9a708bb37071
+		summarizeBy: none
+		sourceColumn: Department Key
+
+	column 'Territory Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 863e8553-4487-51ce-91ee-67a82a715d0c
+		summarizeBy: none
+		sourceColumn: Territory Key
+
+	column 'Headcount Flag'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2f586d2b-f82a-5a2b-9773-b6b2795a41e4
+		summarizeBy: none
+		sourceColumn: Headcount Flag
+
+	column 'New Hire Flag'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 93ca75b6-b512-5ce6-ab97-a2da6db46c72
+		summarizeBy: none
+		sourceColumn: New Hire Flag
+
+	column 'Tenure Months'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c06e08fe-b5ab-5d1e-88e4-6ba4fc68e107
+		summarizeBy: none
+		sourceColumn: Tenure Months
+
+	partition Headcount = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_fact_headcount_monthly"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"month_end_date_key", "Month End Date Key"}, {"employee_key", "Employee Key"}, {"department_key", "Department Key"}, {"territory_key", "Territory Key"}, {"headcount_flag", "Headcount Flag"}, {"new_hire_flag", "New Hire Flag"}, {"tenure_months", "Tenure Months"}}),
+			    Typed = Table.TransformColumnTypes(Renamed, {{"Month End Date Key", Int64.Type}, {"Employee Key", Int64.Type}, {"Department Key", Int64.Type}, {"Territory Key", Int64.Type}, {"Headcount Flag", Int64.Type}, {"New Hire Flag", Int64.Type}, {"Tenure Months", Int64.Type}})
+			in
+			    Typed

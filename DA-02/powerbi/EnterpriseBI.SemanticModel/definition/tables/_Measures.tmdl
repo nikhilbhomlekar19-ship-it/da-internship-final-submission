@@ -1,0 +1,414 @@
+/// Hosts all report measures (no data).
+table _Measures
+	lineageTag: c92f4966-7653-5e0b-8d42-1b1cd0e054c4
+
+	column Placeholder
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c77d3a9e-b01f-5e2f-b82f-d59baa1bf8e4
+		summarizeBy: none
+		sourceColumn: Placeholder
+
+	/// Net sales = line total after line discounts (ties to SalesOrderHeader.SubTotal).
+	measure 'Net Sales' = SUM ( Sales[Net Sales Amount] )
+		formatString: \$#,0
+		displayFolder: Sales
+		lineageTag: 3e3a601e-9b34-5de6-99d6-1bbc2070dbd4
+
+	/// List-price revenue before discounts.
+	measure 'Gross Sales' = SUM ( Sales[Gross Sales Amount] )
+		formatString: \$#,0
+		displayFolder: Sales
+		lineageTag: 154a0218-1311-56e5-b2c9-140ac55c44ef
+
+	/// Discounts given.
+	measure 'Discount Amount' = SUM ( Sales[Discount Amount] )
+		formatString: \$#,0
+		displayFolder: Sales
+		lineageTag: a66e7b0e-3bef-5370-9518-dab5fa733c8a
+
+	/// Discount as a share of gross sales.
+	measure 'Discount %' = DIVIDE ( [Discount Amount], [Gross Sales] )
+		formatString: 0.0%
+		displayFolder: Sales
+		lineageTag: 1690505d-9762-528f-bffe-505d89c87e5d
+
+	/// Units sold.
+	measure 'Units Sold' = SUM ( Sales[Order Quantity] )
+		formatString: #,0
+		displayFolder: Sales
+		lineageTag: 523d881d-6bfb-54d9-bdc9-8dc5a5bcf35a
+
+	/// Distinct sales orders.
+	measure Orders = DISTINCTCOUNT ( Sales[Sales Order ID] )
+		formatString: #,0
+		displayFolder: Sales
+		lineageTag: 142f5e1a-09d3-5b80-a404-50cffa71f854
+
+	/// Distinct customers with at least one order in context.
+	measure 'Active Customers' = DISTINCTCOUNT ( Sales[Customer Key] )
+		formatString: #,0
+		displayFolder: Sales
+		lineageTag: f4732e27-3e89-5c62-be44-8c81238e3df1
+
+	/// Net sales per order.
+	measure 'Avg Order Value' = DIVIDE ( [Net Sales], [Orders] )
+		formatString: \$#,0
+		displayFolder: Sales
+		lineageTag: b0a60822-997f-5b12-965e-81d75b3a0e32
+
+	/// Share of net sales that came through the online channel.
+	measure 'Online Sales Share %' = DIVIDE ( CALCULATE ( [Net Sales], Sales[Order Channel] = "Online" ), [Net Sales] )
+		formatString: 0.0%
+		displayFolder: Sales
+		lineageTag: 465ea3b6-bbcc-52c2-9452-a5309393eb86
+
+	/// Net sales as a share of the territories currently selected.
+	measure 'Net Sales % of Total' = DIVIDE ( [Net Sales], CALCULATE ( [Net Sales], ALLSELECTED ( Territory ) ) )
+		formatString: 0.0%
+		displayFolder: Sales
+		lineageTag: 338c5808-3424-595f-b317-c3630a83f4f7
+
+	/// Last order date visible to the current user (respects row-level security).
+	measure 'Latest Sales Date' = LOOKUPVALUE ( 'Date'[Date], 'Date'[Date Key], CALCULATE ( MAX ( Sales[Order Date Key] ), REMOVEFILTERS ( 'Date' ) ) )
+		formatString: dd mmm yyyy
+		displayFolder: Sales
+		lineageTag: 8ae54e7f-1c69-517f-976b-76b5595e2126
+
+	/// Fiscal year-to-date net sales (fiscal year ends 30 June).
+	measure 'Net Sales YTD (Fiscal)' = TOTALYTD ( [Net Sales], 'Date'[Date], "6/30" )
+		formatString: \$#,0
+		displayFolder: Time Intelligence
+		lineageTag: 5da96e89-7bb3-5e2b-8161-04f93d2b5592
+
+	/// Calendar year-to-date net sales.
+	measure 'Net Sales YTD (Calendar)' = TOTALYTD ( [Net Sales], 'Date'[Date] )
+		formatString: \$#,0
+		displayFolder: Time Intelligence
+		lineageTag: 2ce9d9ab-4743-5a68-9b94-c78e94730e43
+
+	/// Net sales for the same period one year earlier.
+	measure 'Net Sales PY' = CALCULATE ( [Net Sales], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+		formatString: \$#,0
+		displayFolder: Time Intelligence
+		lineageTag: c32f295f-9761-5c18-8de1-77ebd81127d4
+
+	/// Year-over-year growth of net sales. Use fiscal-year or month granularity (partial calendar years are not like-for-like).
+	measure 'Net Sales YoY Growth %' =
+			VAR _py = [Net Sales PY]
+			RETURN
+			    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Net Sales] - _py, _py ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Time Intelligence
+		lineageTag: 5964ba6a-973c-5c2b-950f-e597ae130707
+
+	/// Fiscal YTD net sales one year earlier.
+	measure 'Net Sales YTD (Fiscal) PY' = CALCULATE ( [Net Sales YTD (Fiscal)], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+		formatString: \$#,0
+		displayFolder: Time Intelligence
+		lineageTag: e39ea6bb-5b77-512a-8d19-0016ee38b050
+
+	/// Fiscal YTD growth versus the same point last year.
+	measure 'Net Sales YTD YoY Growth % (Fiscal)' =
+			VAR _py = [Net Sales YTD (Fiscal) PY]
+			RETURN
+			    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Net Sales YTD (Fiscal)] - _py, _py ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Time Intelligence
+		lineageTag: 149db08c-4261-538d-bfbb-af7b2810bb54
+
+	/// Month-over-month growth of net sales.
+	measure 'Net Sales MoM Growth %' =
+			VAR _pm = CALCULATE ( [Net Sales], DATEADD ( 'Date'[Date], -1, MONTH ) )
+			RETURN
+			    IF ( NOT ISBLANK ( _pm ), DIVIDE ( [Net Sales] - _pm, _pm ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Time Intelligence
+		lineageTag: dcf20173-e0d6-541a-b91a-ad37e5697024
+
+	/// Average monthly net sales over the 3 calendar months ending with the selected period's last month. Uses Month Index (avoids the DATESINPERIOD end-of-month quirk).
+	measure 'Net Sales Rolling 3M Avg' =
+			VAR _idx = MAX ( 'Date'[Month Index] )
+			RETURN
+			    CALCULATE (
+			        AVERAGEX ( VALUES ( 'Date'[Year Month Number] ), [Net Sales] ),
+			        REMOVEFILTERS ( 'Date' ),
+			        'Date'[Month Index] > _idx - 3,
+			        'Date'[Month Index] <= _idx
+			    )
+		formatString: \$#,0
+		displayFolder: Time Intelligence
+		lineageTag: 9959bc9b-9c36-5d4c-831a-ff81db8e9eaa
+
+	/// Net sales over the 12 calendar months ending with the selected period's last month.
+	measure 'Net Sales Rolling 12M' =
+			VAR _idx = MAX ( 'Date'[Month Index] )
+			RETURN
+			    CALCULATE (
+			        [Net Sales],
+			        REMOVEFILTERS ( 'Date' ),
+			        'Date'[Month Index] > _idx - 12,
+			        'Date'[Month Index] <= _idx
+			    )
+		formatString: \$#,0
+		displayFolder: Time Intelligence
+		lineageTag: d2ae98a7-8616-564c-98e7-c454bc3d11b9
+
+	/// Net sales by ship date (uses the inactive Ship Date relationship).
+	measure 'Net Sales by Ship Date' = CALCULATE ( [Net Sales], USERELATIONSHIP ( Sales[Ship Date Key], 'Date'[Date Key] ) )
+		formatString: \$#,0
+		displayFolder: Time Intelligence
+		lineageTag: 14477e21-7428-5b61-90b2-8c9e1ee348ab
+
+	/// Sales quota (quarterly quota spread evenly over the quarter's months).
+	measure 'Sales Quota' = SUM ( Quota[Quota Amount] )
+		formatString: \$#,0
+		displayFolder: Quota
+		lineageTag: 55e510c1-4df8-59e6-9d5e-2cf3b3bc72f1
+
+	/// Net sales of quota-carrying salespeople divided by quota.
+	measure 'Quota Attainment %' = DIVIDE ( CALCULATE ( [Net Sales], Salesperson[Quota Status] = "Quota-carrying" ), [Sales Quota] )
+		formatString: 0.0%
+		displayFolder: Quota
+		lineageTag: 1e7845c2-33cc-55d4-9615-399f80201279
+
+	/// Quota-carrying sales minus quota.
+	measure 'Quota Variance' = CALCULATE ( [Net Sales], Salesperson[Quota Status] = "Quota-carrying" ) - [Sales Quota]
+		formatString: \$#,0;-\$#,0
+		displayFolder: Quota
+		lineageTag: 4dcd5ebd-12bf-5079-bf1c-29b1b8192182
+
+	/// Cost of goods sold = quantity x standard cost valid on the order date.
+	measure COGS = SUM ( Sales[Standard Cost Amount] )
+		formatString: \$#,0
+		displayFolder: Finance
+		lineageTag: 3fe6f4f1-6836-5094-9d5a-b198faf48b5f
+
+	/// Net sales minus COGS.
+	measure 'Gross Margin' = [Net Sales] - [COGS]
+		formatString: \$#,0
+		displayFolder: Finance
+		lineageTag: d0ccc65d-fc03-5565-a2bf-38b294e8d30e
+
+	/// Gross margin divided by net sales.
+	measure 'Gross Margin %' = DIVIDE ( [Gross Margin], [Net Sales] )
+		formatString: 0.0%
+		displayFolder: Finance
+		lineageTag: e3d11647-eb72-553e-9d5f-de23b0ebf3e0
+
+	/// Gross margin % for the same period one year earlier.
+	measure 'Gross Margin % PY' = CALCULATE ( [Gross Margin %], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+		formatString: 0.0%
+		displayFolder: Finance
+		lineageTag: e91b0826-4b8d-577a-a901-c1fb9a2907c1
+
+	/// Change in gross margin % versus last year (percentage points shown as %).
+	measure 'Gross Margin % YoY Change' = IF ( NOT ISBLANK ( [Gross Margin % PY] ), [Gross Margin %] - [Gross Margin % PY] )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Finance
+		lineageTag: 65f4237a-795a-5e7e-899f-c25a0fecca8f
+
+	/// Shipping charges billed to customers (SalesOrderHeader.Freight allocated to lines by revenue share).
+	measure 'Freight Billed' = SUM ( Sales[Allocated Freight Amount] )
+		formatString: \$#,0
+		displayFolder: Finance
+		lineageTag: a4264bab-7a8a-504f-bf23-0f5b33543e1e
+
+	/// Sales tax billed (SalesOrderHeader.TaxAmt allocated to lines).
+	measure 'Sales Tax Billed' = SUM ( Sales[Allocated Tax Amount] )
+		formatString: \$#,0
+		displayFolder: Finance
+		lineageTag: f5043a5c-72f3-5f1c-9541-d3162f6f59ce
+
+	/// Net sales + freight + tax = invoiced amount (ties to SalesOrderHeader.TotalDue).
+	measure 'Total Billed' = [Net Sales] + [Freight Billed] + [Sales Tax Billed]
+		formatString: \$#,0
+		displayFolder: Finance
+		lineageTag: 1c7a39b8-d518-5260-b8f8-10fb3fcb2113
+
+	/// Estimated payroll cost = hourly rate x 173.33 hours per employee-month (excludes benefits/overtime).
+	measure 'Est. Payroll Cost' = SUM ( Payroll[Estimated Payroll Cost] )
+		formatString: \$#,0
+		displayFolder: Finance
+		lineageTag: fcb917c3-9da0-5a6a-9ff4-37391667ca69
+
+	/// Management proxy: gross margin minus estimated company-wide payroll.
+	measure 'Gross Margin after Payroll (est.)' = [Gross Margin] - [Est. Payroll Cost]
+		formatString: \$#,0;-\$#,0
+		displayFolder: Finance
+		lineageTag: 3d0c30f2-ab59-543f-9d2a-ddd7d4ec09a5
+
+	/// Purchase order line totals (excl. freight and tax).
+	measure 'Purchase Spend' = SUM ( Purchases[Line Total Amount] )
+		formatString: \$#,0
+		displayFolder: Supply Chain
+		lineageTag: 9b2ed5f8-26b9-5faf-a204-b9946cdc945b
+
+	/// Purchase freight allocated to lines.
+	measure 'Purchase Freight Cost' = SUM ( Purchases[Allocated Freight Amount] )
+		formatString: \$#,0
+		displayFolder: Supply Chain
+		lineageTag: 4710f90d-3b83-5d03-a135-2325f7cfaabb
+
+	/// Year-over-year growth of purchase spend.
+	measure 'Purchase Spend YoY Growth %' =
+			VAR _py = CALCULATE ( [Purchase Spend], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+			RETURN
+			    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Purchase Spend] - _py, _py ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Supply Chain
+		lineageTag: c6a4176d-48e9-59f0-a631-3b708734affa
+
+	/// Purchase order lines.
+	measure 'PO Lines' = COUNTROWS ( Purchases )
+		formatString: #,0
+		displayFolder: Supply Chain
+		lineageTag: d261b506-9709-57b5-9a01-639b2f79e826
+
+	/// Distinct purchase orders.
+	measure 'Purchase Orders' = DISTINCTCOUNT ( Purchases[Purchase Order ID] )
+		formatString: #,0
+		displayFolder: Supply Chain
+		lineageTag: 5c5b09d4-7abd-5fbe-a45a-e45766b5a4ba
+
+	/// Vendors with purchase orders in context.
+	measure 'Active Vendors' = DISTINCTCOUNT ( Purchases[Vendor Key] )
+		formatString: #,0
+		displayFolder: Supply Chain
+		lineageTag: 351a91d2-5ce9-56c2-96b4-caa2f128e0ff
+
+	/// Ordered quantity.
+	measure 'Ordered Qty' = SUM ( Purchases[Order Quantity] )
+		formatString: #,0
+		displayFolder: Supply Chain
+		lineageTag: 57590f5c-79cf-5312-8e9c-5f557b66bd5f
+
+	/// Received quantity.
+	measure 'Received Qty' = SUM ( Purchases[Received Quantity] )
+		formatString: #,0
+		displayFolder: Supply Chain
+		lineageTag: e52bae1d-b6bc-505d-a368-5250658cbb67
+
+	/// Rejected quantity.
+	measure 'Rejected Qty' = SUM ( Purchases[Rejected Quantity] )
+		formatString: #,0
+		displayFolder: Supply Chain
+		lineageTag: 279de8a7-5432-5bb9-8be2-fb2dc45633d6
+
+	/// Received / ordered quantity.
+	measure 'Receipt Fill Rate %' = DIVIDE ( [Received Qty], [Ordered Qty] )
+		formatString: 0.0%
+		displayFolder: Supply Chain
+		lineageTag: 74b5b1c6-b7b9-597a-8ac0-6ce84ce6c4d1
+
+	/// Rejected / received quantity.
+	measure 'Reject Rate %' = DIVIDE ( [Rejected Qty], [Received Qty] )
+		formatString: 0.0%
+		displayFolder: Supply Chain
+		lineageTag: 4876d8d5-d651-5f35-a6ca-370397403630
+
+	/// Share of shipped PO lines that shipped on or before their due date.
+	measure 'On-Time Delivery %' = DIVIDE ( SUM ( Purchases[On Time Flag] ), SUM ( Purchases[Shipped Flag] ) )
+		formatString: 0.0%
+		displayFolder: Supply Chain
+		lineageTag: 73d089af-fac4-5905-8780-098122b6a46b
+
+	/// Average days late across shipped PO lines (on-time lines count as 0).
+	measure 'Avg Days Late' = DIVIDE ( SUM ( Purchases[Days Late] ), SUM ( Purchases[Shipped Flag] ) )
+		formatString: 0.0
+		displayFolder: Supply Chain
+		lineageTag: 2d051182-37c8-5b2d-a5b8-1e28759641a0
+
+	/// Units on hand (current snapshot, company-wide).
+	measure 'Inventory On Hand (Qty)' = SUM ( Inventory[Quantity] )
+		formatString: #,0
+		displayFolder: Supply Chain
+		lineageTag: f8ba0cf7-fd36-593a-a4e0-0c450aa32322
+
+	/// On-hand quantity x current standard cost.
+	measure 'Inventory Value' = SUM ( Inventory[Inventory Value Amount] )
+		formatString: \$#,0
+		displayFolder: Supply Chain
+		lineageTag: 09d83fb6-ebcf-5a15-8f1d-4ccc45aef826
+
+	/// Stocked products whose total on-hand quantity is below their reorder point.
+	measure 'Products Below Reorder Point' =
+			COUNTROWS (
+			    FILTER (
+			        VALUES ( Product[Product Key] ),
+			        VAR _q = [Inventory On Hand (Qty)]
+			        RETURN NOT ISBLANK ( _q ) && _q < MAX ( Product[Reorder Point] )
+			    )
+			)
+		formatString: #,0
+		displayFolder: Supply Chain
+		lineageTag: eeee457d-bcb5-5992-a1b3-62cf9f7994fb
+
+	/// Employees on the last month-end in the selected period (semi-additive snapshot).
+	measure Headcount =
+			CALCULATE (
+			    SUM ( Headcount[Headcount Flag] ),
+			    LASTNONBLANK ( 'Date'[Date], CALCULATE ( COUNTROWS ( Headcount ) ) )
+			)
+		formatString: #,0
+		displayFolder: HR
+		lineageTag: 78000dc2-a722-50a1-b268-1148364766d2
+
+	/// Employees whose hire date falls in the selected period.
+	measure 'New Hires' = SUM ( Headcount[New Hire Flag] )
+		formatString: #,0
+		displayFolder: HR
+		lineageTag: 55197977-6f56-5e04-b48d-37a0c5434994
+
+	/// Average tenure in years at the last month-end of the period.
+	measure 'Avg Tenure (Years)' =
+			DIVIDE (
+			    CALCULATE (
+			        SUM ( Headcount[Tenure Months] ),
+			        LASTNONBLANK ( 'Date'[Date], CALCULATE ( COUNTROWS ( Headcount ) ) )
+			    ),
+			    [Headcount] * 12
+			)
+		formatString: 0.0
+		displayFolder: HR
+		lineageTag: 45849013-dc5d-5428-93a5-34489165dac0
+
+	/// Headcount growth versus the same period last year.
+	measure 'Headcount YoY Growth %' =
+			VAR _py = CALCULATE ( [Headcount], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+			RETURN
+			    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Headcount] - _py, _py ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: HR
+		lineageTag: 33de11b2-7044-5351-b1ca-d2ba979f570c
+
+	/// Estimated monthly payroll cost per employee.
+	measure 'Avg Monthly Cost per Employee' = DIVIDE ( [Est. Payroll Cost], SUM ( Payroll[Employee Count] ) )
+		formatString: \$#,0
+		displayFolder: HR
+		lineageTag: 93930e9c-dc7c-57c0-936b-436500839fbc
+
+	/// Number of territories the current user can see (RLS test helper).
+	measure 'Territories Visible' = COUNTROWS ( VALUES ( Territory[Territory Key] ) )
+		formatString: #,0
+		displayFolder: Security
+		lineageTag: 2787bb06-7bdd-5651-bbae-1051c65e3801
+
+	/// Signed-in user as seen by row-level security.
+	measure 'Current User' = USERPRINCIPALNAME ()
+		displayFolder: Security
+		lineageTag: 57013f48-9832-5b4c-9175-42c5219f5e7d
+
+	/// Label for report headers.
+	measure 'Data Through' = "Sales data through " & FORMAT ( [Latest Sales Date], "d mmm yyyy" )
+		displayFolder: Security
+		lineageTag: e41c7708-1874-5996-9ff0-73b09cf721ba
+
+	partition _Measures = m
+		mode: import
+		source =
+			let
+			    Source = #table(type table [Placeholder = Int64.Type], {{1}})
+			in
+			    Source

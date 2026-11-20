@@ -1,0 +1,15 @@
+// Row-level security (also defined in the TMDL roles). Test with: Modeling > View as > Region Manager + 'Other user'.
+// ---- Role: Region Manager ----
+// Table: Territory
+COUNTROWS (
+    FILTER (
+        'Region Access',
+        'Region Access'[User Email] = USERPRINCIPALNAME ()
+            && 'Region Access'[Territory Key] = Territory[Territory Key]
+    )
+) > 0
+
+// Table: Region Access
+'Region Access'[User Email] = USERPRINCIPALNAME ()
+
+// ---- Role: Global Executive ---- (no table filters)

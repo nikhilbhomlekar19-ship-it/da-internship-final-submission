@@ -1,0 +1,116 @@
+relationship Sales_OrderDate_Date
+	fromColumn: Sales.'Order Date Key'
+	toColumn: Date.'Date Key'
+
+relationship Sales_ShipDate_Date
+	isActive: false
+	fromColumn: Sales.'Ship Date Key'
+	toColumn: Date.'Date Key'
+
+relationship Sales_DueDate_Date
+	isActive: false
+	fromColumn: Sales.'Due Date Key'
+	toColumn: Date.'Date Key'
+
+relationship Sales_Customer
+	fromColumn: Sales.'Customer Key'
+	toColumn: Customer.'Customer Key'
+
+relationship Sales_Product
+	fromColumn: Sales.'Product Key'
+	toColumn: Product.'Product Key'
+
+relationship Sales_Territory
+	fromColumn: Sales.'Territory Key'
+	toColumn: Territory.'Territory Key'
+
+relationship Sales_Salesperson
+	fromColumn: Sales.'Salesperson Key'
+	toColumn: Salesperson.'Salesperson Key'
+
+relationship Sales_SpecialOffer
+	fromColumn: Sales.'Special Offer Key'
+	toColumn: 'Special Offer'.'Special Offer Key'
+
+relationship Sales_ShipMethod
+	fromColumn: Sales.'Ship Method Key'
+	toColumn: 'Ship Method'.'Ship Method Key'
+
+relationship Quota_QuotaMonth_Date
+	fromColumn: Quota.'Quota Month Key'
+	toColumn: Date.'Date Key'
+
+relationship Quota_Salesperson
+	fromColumn: Quota.'Salesperson Key'
+	toColumn: Salesperson.'Salesperson Key'
+
+relationship Quota_Territory
+	fromColumn: Quota.'Territory Key'
+	toColumn: Territory.'Territory Key'
+
+relationship Purchases_OrderDate_Date
+	fromColumn: Purchases.'Order Date Key'
+	toColumn: Date.'Date Key'
+
+relationship Purchases_ShipDate_Date
+	isActive: false
+	fromColumn: Purchases.'Ship Date Key'
+	toColumn: Date.'Date Key'
+
+relationship Purchases_DueDate_Date
+	isActive: false
+	fromColumn: Purchases.'Due Date Key'
+	toColumn: Date.'Date Key'
+
+relationship Purchases_Vendor
+	fromColumn: Purchases.'Vendor Key'
+	toColumn: Vendor.'Vendor Key'
+
+relationship Purchases_Product
+	fromColumn: Purchases.'Product Key'
+	toColumn: Product.'Product Key'
+
+relationship Purchases_ShipMethod
+	fromColumn: Purchases.'Ship Method Key'
+	toColumn: 'Ship Method'.'Ship Method Key'
+
+relationship Purchases_Territory
+	fromColumn: Purchases.'Territory Key'
+	toColumn: Territory.'Territory Key'
+
+relationship Inventory_Product
+	fromColumn: Inventory.'Product Key'
+	toColumn: Product.'Product Key'
+
+relationship Inventory_Location
+	fromColumn: Inventory.'Location Key'
+	toColumn: Location.'Location Key'
+
+relationship Headcount_MonthEnd_Date
+	fromColumn: Headcount.'Month End Date Key'
+	toColumn: Date.'Date Key'
+
+relationship Headcount_Employee
+	fromColumn: Headcount.'Employee Key'
+	toColumn: Employee.'Employee Key'
+
+relationship Headcount_Department
+	fromColumn: Headcount.'Department Key'
+	toColumn: Department.'Department Key'
+
+relationship Headcount_Territory
+	fromColumn: Headcount.'Territory Key'
+	toColumn: Territory.'Territory Key'
+
+relationship Payroll_MonthEnd_Date
+	fromColumn: Payroll.'Month End Date Key'
+	toColumn: Date.'Date Key'
+
+relationship Payroll_Department
+	fromColumn: Payroll.'Department Key'
+	toColumn: Department.'Department Key'
+
+relationship Payroll_Territory
+	fromColumn: Payroll.'Territory Key'
+	toColumn: Territory.'Territory Key'
+

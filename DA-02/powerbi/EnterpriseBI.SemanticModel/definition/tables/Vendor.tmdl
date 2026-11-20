@@ -1,0 +1,79 @@
+/// Suppliers; region = territory of the vendor's main-office address.
+table Vendor
+	lineageTag: 5652a686-073f-5900-bcd6-2bc640a33746
+
+	column 'Vendor Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b8867a77-4903-589f-8e9a-6023cdd0a158
+		summarizeBy: none
+		sourceColumn: Vendor Key
+
+	column 'Vendor ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 36f3faa2-1403-589b-b5a9-366fdbb58582
+		summarizeBy: none
+		sourceColumn: Vendor ID
+
+	column Vendor
+		dataType: string
+		lineageTag: 74f36918-ea17-5090-be22-7f25d679be6c
+		summarizeBy: none
+		sourceColumn: Vendor
+
+	column 'Account Number'
+		dataType: string
+		lineageTag: df76c821-7aa6-5da1-9519-0eb42744eadf
+		summarizeBy: none
+		sourceColumn: Account Number
+
+	column 'Credit Rating'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 25b6a7b1-bc78-5d43-9143-6767bb3ab3d5
+		summarizeBy: none
+		sourceColumn: Credit Rating
+
+	column 'Credit Rating Label'
+		dataType: string
+		lineageTag: 97a40380-70df-5a9e-8d51-fb5031fcb9db
+		summarizeBy: none
+		sourceColumn: Credit Rating Label
+		sortByColumn: 'Credit Rating'
+
+	column 'Preferred Status'
+		dataType: string
+		lineageTag: 512bad70-01d2-57cb-97a8-ab323b3951db
+		summarizeBy: none
+		sourceColumn: Preferred Status
+
+	column 'Active Status'
+		dataType: string
+		lineageTag: d71f9107-f7bb-5ef2-92e4-c0efdbb0f73e
+		summarizeBy: none
+		sourceColumn: Active Status
+
+	column 'Territory Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cd730268-1361-5aa9-861a-7620a03b12ea
+		summarizeBy: none
+		sourceColumn: Territory Key
+
+	partition Vendor = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_vendor"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"vendor_key", "Vendor Key"}, {"vendor_id", "Vendor ID"}, {"vendor_name", "Vendor"}, {"account_number", "Account Number"}, {"credit_rating", "Credit Rating"}, {"credit_rating_label", "Credit Rating Label"}, {"preferred_status", "Preferred Status"}, {"active_status", "Active Status"}, {"territory_key", "Territory Key"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Vendor", Text.Trim, type text}, {"Account Number", Text.Trim, type text}, {"Credit Rating Label", Text.Trim, type text}, {"Preferred Status", Text.Trim, type text}, {"Active Status", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Vendor", "Account Number", "Credit Rating Label", "Preferred Status", "Active Status"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Vendor Key", Int64.Type}, {"Vendor ID", Int64.Type}, {"Vendor", type text}, {"Account Number", type text}, {"Credit Rating", Int64.Type}, {"Credit Rating Label", type text}, {"Preferred Status", type text}, {"Active Status", type text}, {"Territory Key", Int64.Type}})
+			in
+			    Typed

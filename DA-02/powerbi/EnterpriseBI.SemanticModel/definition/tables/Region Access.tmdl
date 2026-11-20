@@ -1,0 +1,29 @@
+/// Row-level-security map: which users may see which territory (Region Manager role).
+table 'Region Access'
+	lineageTag: a18aca08-af75-55a1-ac44-5431c63effb9
+	isHidden
+
+	column 'User Email'
+		dataType: string
+		lineageTag: e1b49ff3-f74a-5c57-b6e6-6370982b5ce4
+		summarizeBy: none
+		sourceColumn: User Email
+
+	column 'Territory Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ab7348d6-624e-5048-bb0b-5472eb246811
+		summarizeBy: none
+		sourceColumn: Territory Key
+
+	partition 'Region Access' = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_sec_user_territory"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"user_email", "User Email"}, {"territory_key", "Territory Key"}}),
+			    Typed = Table.TransformColumnTypes(Renamed, {{"User Email", type text}, {"Territory Key", Int64.Type}})
+			in
+			    Typed

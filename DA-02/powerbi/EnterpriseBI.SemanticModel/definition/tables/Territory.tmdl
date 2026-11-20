@@ -1,0 +1,68 @@
+/// Sales territory = the 'region' that row-level security is keyed on.
+table Territory
+	lineageTag: dde80ad9-99f8-5d8b-9f59-82117049c9e9
+
+	column 'Territory Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 02e25065-20c0-5993-a1e3-84e2d32b6db9
+		summarizeBy: none
+		sourceColumn: Territory Key
+
+	column 'Territory ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e7d15f77-ea01-5673-91b2-1fe281da6b2b
+		summarizeBy: none
+		sourceColumn: Territory ID
+
+	column Territory
+		dataType: string
+		lineageTag: 12796618-9645-5b63-85de-7f2d39a8fb35
+		summarizeBy: none
+		sourceColumn: Territory
+
+	column 'Country Code'
+		dataType: string
+		lineageTag: 55f26c3c-096f-561a-beac-b7774157867a
+		summarizeBy: none
+		sourceColumn: Country Code
+
+	column Country
+		dataType: string
+		lineageTag: 23a92dbf-002d-51f6-9920-9b37ad0ccc89
+		summarizeBy: none
+		sourceColumn: Country
+
+	column 'Territory Group'
+		dataType: string
+		lineageTag: c2a189b2-5890-53c5-a59d-9651905c7daa
+		summarizeBy: none
+		sourceColumn: Territory Group
+
+	hierarchy Geography
+		lineageTag: e4cbc9f9-d1f4-5ca6-8176-d937aa0902da
+		level 'Territory Group'
+			lineageTag: bbae7d6a-6a92-5f01-af6b-53cb1f7f85d6
+			column: 'Territory Group'
+		level Country
+			lineageTag: 886d4b3e-3472-5167-be77-0220cabf86fa
+			column: Country
+		level Territory
+			lineageTag: 85d5959e-9cf3-5852-a4fa-2b64bd6d7835
+			column: Territory
+
+	partition Territory = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_territory"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"territory_key", "Territory Key"}, {"territory_id", "Territory ID"}, {"territory_name", "Territory"}, {"country_region_code", "Country Code"}, {"country_region_name", "Country"}, {"territory_group", "Territory Group"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Territory", Text.Trim, type text}, {"Country Code", Text.Trim, type text}, {"Country", Text.Trim, type text}, {"Territory Group", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Territory", "Country Code", "Country", "Territory Group"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Territory Key", Int64.Type}, {"Territory ID", Int64.Type}, {"Territory", type text}, {"Country Code", type text}, {"Country", type text}, {"Territory Group", type text}})
+			in
+			    Typed

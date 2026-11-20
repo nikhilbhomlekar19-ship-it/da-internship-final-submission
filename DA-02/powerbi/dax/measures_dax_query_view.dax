@@ -1,0 +1,217 @@
+// Paste into Power BI Desktop > DAX query view, then click 'Update model: Add new measure' on each (or 'Update model with changes').
+DEFINE
+	/// Net sales = line total after line discounts (ties to SalesOrderHeader.SubTotal).
+	MEASURE _Measures[Net Sales] =
+		SUM ( Sales[Net Sales Amount] )
+	/// List-price revenue before discounts.
+	MEASURE _Measures[Gross Sales] =
+		SUM ( Sales[Gross Sales Amount] )
+	/// Discounts given.
+	MEASURE _Measures[Discount Amount] =
+		SUM ( Sales[Discount Amount] )
+	/// Discount as a share of gross sales.
+	MEASURE _Measures[Discount %] =
+		DIVIDE ( [Discount Amount], [Gross Sales] )
+	/// Units sold.
+	MEASURE _Measures[Units Sold] =
+		SUM ( Sales[Order Quantity] )
+	/// Distinct sales orders.
+	MEASURE _Measures[Orders] =
+		DISTINCTCOUNT ( Sales[Sales Order ID] )
+	/// Distinct customers with at least one order in context.
+	MEASURE _Measures[Active Customers] =
+		DISTINCTCOUNT ( Sales[Customer Key] )
+	/// Net sales per order.
+	MEASURE _Measures[Avg Order Value] =
+		DIVIDE ( [Net Sales], [Orders] )
+	/// Share of net sales that came through the online channel.
+	MEASURE _Measures[Online Sales Share %] =
+		DIVIDE ( CALCULATE ( [Net Sales], Sales[Order Channel] = "Online" ), [Net Sales] )
+	/// Net sales as a share of the territories currently selected.
+	MEASURE _Measures[Net Sales % of Total] =
+		DIVIDE ( [Net Sales], CALCULATE ( [Net Sales], ALLSELECTED ( Territory ) ) )
+	/// Last order date visible to the current user (respects row-level security).
+	MEASURE _Measures[Latest Sales Date] =
+		LOOKUPVALUE ( 'Date'[Date], 'Date'[Date Key], CALCULATE ( MAX ( Sales[Order Date Key] ), REMOVEFILTERS ( 'Date' ) ) )
+	/// Fiscal year-to-date net sales (fiscal year ends 30 June).
+	MEASURE _Measures[Net Sales YTD (Fiscal)] =
+		TOTALYTD ( [Net Sales], 'Date'[Date], "6/30" )
+	/// Calendar year-to-date net sales.
+	MEASURE _Measures[Net Sales YTD (Calendar)] =
+		TOTALYTD ( [Net Sales], 'Date'[Date] )
+	/// Net sales for the same period one year earlier.
+	MEASURE _Measures[Net Sales PY] =
+		CALCULATE ( [Net Sales], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+	/// Year-over-year growth of net sales. Use fiscal-year or month granularity (partial calendar years are not like-for-like).
+	MEASURE _Measures[Net Sales YoY Growth %] =
+		VAR _py = [Net Sales PY]
+		RETURN
+		    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Net Sales] - _py, _py ) )
+	/// Fiscal YTD net sales one year earlier.
+	MEASURE _Measures[Net Sales YTD (Fiscal) PY] =
+		CALCULATE ( [Net Sales YTD (Fiscal)], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+	/// Fiscal YTD growth versus the same point last year.
+	MEASURE _Measures[Net Sales YTD YoY Growth % (Fiscal)] =
+		VAR _py = [Net Sales YTD (Fiscal) PY]
+		RETURN
+		    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Net Sales YTD (Fiscal)] - _py, _py ) )
+	/// Month-over-month growth of net sales.
+	MEASURE _Measures[Net Sales MoM Growth %] =
+		VAR _pm = CALCULATE ( [Net Sales], DATEADD ( 'Date'[Date], -1, MONTH ) )
+		RETURN
+		    IF ( NOT ISBLANK ( _pm ), DIVIDE ( [Net Sales] - _pm, _pm ) )
+	/// Average monthly net sales over the 3 calendar months ending with the selected period's last month. Uses Month Index (avoids the DATESINPERIOD end-of-month quirk).
+	MEASURE _Measures[Net Sales Rolling 3M Avg] =
+		VAR _idx = MAX ( 'Date'[Month Index] )
+		RETURN
+		    CALCULATE (
+		        AVERAGEX ( VALUES ( 'Date'[Year Month Number] ), [Net Sales] ),
+		        REMOVEFILTERS ( 'Date' ),
+		        'Date'[Month Index] > _idx - 3,
+		        'Date'[Month Index] <= _idx
+		    )
+	/// Net sales over the 12 calendar months ending with the selected period's last month.
+	MEASURE _Measures[Net Sales Rolling 12M] =
+		VAR _idx = MAX ( 'Date'[Month Index] )
+		RETURN
+		    CALCULATE (
+		        [Net Sales],
+		        REMOVEFILTERS ( 'Date' ),
+		        'Date'[Month Index] > _idx - 12,
+		        'Date'[Month Index] <= _idx
+		    )
+	/// Net sales by ship date (uses the inactive Ship Date relationship).
+	MEASURE _Measures[Net Sales by Ship Date] =
+		CALCULATE ( [Net Sales], USERELATIONSHIP ( Sales[Ship Date Key], 'Date'[Date Key] ) )
+	/// Sales quota (quarterly quota spread evenly over the quarter's months).
+	MEASURE _Measures[Sales Quota] =
+		SUM ( Quota[Quota Amount] )
+	/// Net sales of quota-carrying salespeople divided by quota.
+	MEASURE _Measures[Quota Attainment %] =
+		DIVIDE ( CALCULATE ( [Net Sales], Salesperson[Quota Status] = "Quota-carrying" ), [Sales Quota] )
+	/// Quota-carrying sales minus quota.
+	MEASURE _Measures[Quota Variance] =
+		CALCULATE ( [Net Sales], Salesperson[Quota Status] = "Quota-carrying" ) - [Sales Quota]
+	/// Cost of goods sold = quantity x standard cost valid on the order date.
+	MEASURE _Measures[COGS] =
+		SUM ( Sales[Standard Cost Amount] )
+	/// Net sales minus COGS.
+	MEASURE _Measures[Gross Margin] =
+		[Net Sales] - [COGS]
+	/// Gross margin divided by net sales.
+	MEASURE _Measures[Gross Margin %] =
+		DIVIDE ( [Gross Margin], [Net Sales] )
+	/// Gross margin % for the same period one year earlier.
+	MEASURE _Measures[Gross Margin % PY] =
+		CALCULATE ( [Gross Margin %], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+	/// Change in gross margin % versus last year (percentage points shown as %).
+	MEASURE _Measures[Gross Margin % YoY Change] =
+		IF ( NOT ISBLANK ( [Gross Margin % PY] ), [Gross Margin %] - [Gross Margin % PY] )
+	/// Shipping charges billed to customers (SalesOrderHeader.Freight allocated to lines by revenue share).
+	MEASURE _Measures[Freight Billed] =
+		SUM ( Sales[Allocated Freight Amount] )
+	/// Sales tax billed (SalesOrderHeader.TaxAmt allocated to lines).
+	MEASURE _Measures[Sales Tax Billed] =
+		SUM ( Sales[Allocated Tax Amount] )
+	/// Net sales + freight + tax = invoiced amount (ties to SalesOrderHeader.TotalDue).
+	MEASURE _Measures[Total Billed] =
+		[Net Sales] + [Freight Billed] + [Sales Tax Billed]
+	/// Estimated payroll cost = hourly rate x 173.33 hours per employee-month (excludes benefits/overtime).
+	MEASURE _Measures[Est. Payroll Cost] =
+		SUM ( Payroll[Estimated Payroll Cost] )
+	/// Management proxy: gross margin minus estimated company-wide payroll.
+	MEASURE _Measures[Gross Margin after Payroll (est.)] =
+		[Gross Margin] - [Est. Payroll Cost]
+	/// Purchase order line totals (excl. freight and tax).
+	MEASURE _Measures[Purchase Spend] =
+		SUM ( Purchases[Line Total Amount] )
+	/// Purchase freight allocated to lines.
+	MEASURE _Measures[Purchase Freight Cost] =
+		SUM ( Purchases[Allocated Freight Amount] )
+	/// Year-over-year growth of purchase spend.
+	MEASURE _Measures[Purchase Spend YoY Growth %] =
+		VAR _py = CALCULATE ( [Purchase Spend], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+		RETURN
+		    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Purchase Spend] - _py, _py ) )
+	/// Purchase order lines.
+	MEASURE _Measures[PO Lines] =
+		COUNTROWS ( Purchases )
+	/// Distinct purchase orders.
+	MEASURE _Measures[Purchase Orders] =
+		DISTINCTCOUNT ( Purchases[Purchase Order ID] )
+	/// Vendors with purchase orders in context.
+	MEASURE _Measures[Active Vendors] =
+		DISTINCTCOUNT ( Purchases[Vendor Key] )
+	/// Ordered quantity.
+	MEASURE _Measures[Ordered Qty] =
+		SUM ( Purchases[Order Quantity] )
+	/// Received quantity.
+	MEASURE _Measures[Received Qty] =
+		SUM ( Purchases[Received Quantity] )
+	/// Rejected quantity.
+	MEASURE _Measures[Rejected Qty] =
+		SUM ( Purchases[Rejected Quantity] )
+	/// Received / ordered quantity.
+	MEASURE _Measures[Receipt Fill Rate %] =
+		DIVIDE ( [Received Qty], [Ordered Qty] )
+	/// Rejected / received quantity.
+	MEASURE _Measures[Reject Rate %] =
+		DIVIDE ( [Rejected Qty], [Received Qty] )
+	/// Share of shipped PO lines that shipped on or before their due date.
+	MEASURE _Measures[On-Time Delivery %] =
+		DIVIDE ( SUM ( Purchases[On Time Flag] ), SUM ( Purchases[Shipped Flag] ) )
+	/// Average days late across shipped PO lines (on-time lines count as 0).
+	MEASURE _Measures[Avg Days Late] =
+		DIVIDE ( SUM ( Purchases[Days Late] ), SUM ( Purchases[Shipped Flag] ) )
+	/// Units on hand (current snapshot, company-wide).
+	MEASURE _Measures[Inventory On Hand (Qty)] =
+		SUM ( Inventory[Quantity] )
+	/// On-hand quantity x current standard cost.
+	MEASURE _Measures[Inventory Value] =
+		SUM ( Inventory[Inventory Value Amount] )
+	/// Stocked products whose total on-hand quantity is below their reorder point.
+	MEASURE _Measures[Products Below Reorder Point] =
+		COUNTROWS (
+		    FILTER (
+		        VALUES ( Product[Product Key] ),
+		        VAR _q = [Inventory On Hand (Qty)]
+		        RETURN NOT ISBLANK ( _q ) && _q < MAX ( Product[Reorder Point] )
+		    )
+		)
+	/// Employees on the last month-end in the selected period (semi-additive snapshot).
+	MEASURE _Measures[Headcount] =
+		CALCULATE (
+		    SUM ( Headcount[Headcount Flag] ),
+		    LASTNONBLANK ( 'Date'[Date], CALCULATE ( COUNTROWS ( Headcount ) ) )
+		)
+	/// Employees whose hire date falls in the selected period.
+	MEASURE _Measures[New Hires] =
+		SUM ( Headcount[New Hire Flag] )
+	/// Average tenure in years at the last month-end of the period.
+	MEASURE _Measures[Avg Tenure (Years)] =
+		DIVIDE (
+		    CALCULATE (
+		        SUM ( Headcount[Tenure Months] ),
+		        LASTNONBLANK ( 'Date'[Date], CALCULATE ( COUNTROWS ( Headcount ) ) )
+		    ),
+		    [Headcount] * 12
+		)
+	/// Headcount growth versus the same period last year.
+	MEASURE _Measures[Headcount YoY Growth %] =
+		VAR _py = CALCULATE ( [Headcount], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+		RETURN
+		    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Headcount] - _py, _py ) )
+	/// Estimated monthly payroll cost per employee.
+	MEASURE _Measures[Avg Monthly Cost per Employee] =
+		DIVIDE ( [Est. Payroll Cost], SUM ( Payroll[Employee Count] ) )
+	/// Number of territories the current user can see (RLS test helper).
+	MEASURE _Measures[Territories Visible] =
+		COUNTROWS ( VALUES ( Territory[Territory Key] ) )
+	/// Signed-in user as seen by row-level security.
+	MEASURE _Measures[Current User] =
+		USERPRINCIPALNAME ()
+	/// Label for report headers.
+	MEASURE _Measures[Data Through] =
+		"Sales data through " & FORMAT ( [Latest Sales Date], "d mmm yyyy" )
+
+EVALUATE ROW ( "Net Sales", [Net Sales] )

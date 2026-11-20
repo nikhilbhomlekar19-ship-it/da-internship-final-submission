@@ -1,0 +1,71 @@
+/// Employees. Data-minimised: no national ID, birth date, gender or pay rate is loaded.
+table Employee
+	lineageTag: 2a584d55-5937-5654-a868-e448401cbab2
+
+	column 'Employee Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9c885bd9-ba57-56bd-afab-51431c72f35e
+		summarizeBy: none
+		sourceColumn: Employee Key
+
+	column 'Business Entity ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d5ca4e5c-e34a-5549-9c4d-f8bae03ab147
+		summarizeBy: none
+		sourceColumn: Business Entity ID
+
+	column Employee
+		dataType: string
+		lineageTag: 26ecc2a1-cd87-5d6a-8d3a-78031d523ad6
+		summarizeBy: none
+		sourceColumn: Employee
+
+	column 'Job Title'
+		dataType: string
+		lineageTag: ca9172d8-75f4-5ad8-86f5-c9979f9929f1
+		summarizeBy: none
+		sourceColumn: Job Title
+
+	column 'Hire Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		lineageTag: 45aea34c-282d-5d90-8ebf-000f439f4977
+		summarizeBy: none
+		sourceColumn: Hire Date
+
+	column 'Salaried Status'
+		dataType: string
+		lineageTag: 4a3938a7-1150-5fa8-9963-3441f909b68e
+		summarizeBy: none
+		sourceColumn: Salaried Status
+
+	column 'Current Status'
+		dataType: string
+		lineageTag: e88c653d-8916-5b43-b3db-42905e1d3ec4
+		summarizeBy: none
+		sourceColumn: Current Status
+
+	column 'Territory Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 12f37658-d139-5548-832d-81c5c9c24a5c
+		summarizeBy: none
+		sourceColumn: Territory Key
+
+	partition Employee = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_employee"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"employee_key", "Employee Key"}, {"business_entity_id", "Business Entity ID"}, {"employee_name", "Employee"}, {"job_title", "Job Title"}, {"hire_date", "Hire Date"}, {"salaried_status", "Salaried Status"}, {"current_status", "Current Status"}, {"territory_key", "Territory Key"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Employee", Text.Trim, type text}, {"Job Title", Text.Trim, type text}, {"Salaried Status", Text.Trim, type text}, {"Current Status", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Employee", "Job Title", "Salaried Status", "Current Status"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Employee Key", Int64.Type}, {"Business Entity ID", Int64.Type}, {"Employee", type text}, {"Job Title", type text}, {"Hire Date", type date}, {"Salaried Status", type text}, {"Current Status", type text}, {"Territory Key", Int64.Type}})
+			in
+			    Typed

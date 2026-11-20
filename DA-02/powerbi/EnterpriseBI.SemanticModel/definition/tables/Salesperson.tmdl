@@ -1,0 +1,56 @@
+/// Sales representatives; -1 = online orders (no salesperson).
+table Salesperson
+	lineageTag: c8c28381-7689-5075-bc1b-de954fe55a7e
+
+	column 'Salesperson Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4a0602f7-1046-5d4e-84cf-4704e3b2802a
+		summarizeBy: none
+		sourceColumn: Salesperson Key
+
+	column 'Business Entity ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 26e66f39-813c-53df-85f1-30ddc5c21981
+		summarizeBy: none
+		sourceColumn: Business Entity ID
+
+	column Salesperson
+		dataType: string
+		lineageTag: 3a403fcc-f513-5b02-be89-d961bfe4a4af
+		summarizeBy: none
+		sourceColumn: Salesperson
+
+	column 'Job Title'
+		dataType: string
+		lineageTag: b853e094-9e3d-5437-a036-020823d6f115
+		summarizeBy: none
+		sourceColumn: Job Title
+
+	column 'Home Territory'
+		dataType: string
+		lineageTag: 39386a41-e26d-55b5-91e9-725188fa553f
+		summarizeBy: none
+		sourceColumn: Home Territory
+
+	column 'Quota Status'
+		dataType: string
+		lineageTag: 870a4a29-cc5c-523b-aa89-0ccc89506c4a
+		summarizeBy: none
+		sourceColumn: Quota Status
+
+	partition Salesperson = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_salesperson"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"salesperson_key", "Salesperson Key"}, {"business_entity_id", "Business Entity ID"}, {"salesperson_name", "Salesperson"}, {"job_title", "Job Title"}, {"territory_name", "Home Territory"}, {"quota_status", "Quota Status"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Salesperson", Text.Trim, type text}, {"Job Title", Text.Trim, type text}, {"Home Territory", Text.Trim, type text}, {"Quota Status", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Salesperson", "Job Title", "Home Territory", "Quota Status"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Salesperson Key", Int64.Type}, {"Business Entity ID", Int64.Type}, {"Salesperson", type text}, {"Job Title", type text}, {"Home Territory", type text}, {"Quota Status", type text}})
+			in
+			    Typed

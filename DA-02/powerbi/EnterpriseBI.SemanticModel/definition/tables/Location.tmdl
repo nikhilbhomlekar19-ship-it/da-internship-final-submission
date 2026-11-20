@@ -1,0 +1,52 @@
+/// Inventory locations (production areas).
+table Location
+	lineageTag: 2663082a-a54d-5546-9481-68c009e5d97c
+
+	column 'Location Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 0728899a-b0e6-5696-81df-2d6839cf7ecf
+		summarizeBy: none
+		sourceColumn: Location Key
+
+	column 'Location ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ae79a088-b25e-5eec-a94b-c8e7806761fd
+		summarizeBy: none
+		sourceColumn: Location ID
+
+	column Location
+		dataType: string
+		lineageTag: 9f54a92a-fb21-5d19-a025-0c1cd883b1a7
+		summarizeBy: none
+		sourceColumn: Location
+
+	column 'Cost Rate'
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 138764f1-7ec6-5cf3-9fbb-0d482feb7e1c
+		summarizeBy: none
+		sourceColumn: Cost Rate
+
+	column Availability
+		dataType: double
+		formatString: #,0.00
+		lineageTag: b31268f3-b317-5474-9253-84011beb058b
+		summarizeBy: none
+		sourceColumn: Availability
+
+	partition Location = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_location"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"location_key", "Location Key"}, {"location_id", "Location ID"}, {"location_name", "Location"}, {"cost_rate", "Cost Rate"}, {"availability", "Availability"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Location", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Location"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Location Key", Int64.Type}, {"Location ID", Int64.Type}, {"Location", type text}, {"Cost Rate", type number}, {"Availability", type number}})
+			in
+			    Typed

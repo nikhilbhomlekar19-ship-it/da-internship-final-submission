@@ -1,0 +1,85 @@
+/// Sales promotions.
+table 'Special Offer'
+	lineageTag: 6a40fe91-6d68-5490-8e2e-e9d4aad3122b
+
+	column 'Special Offer Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a501b792-381e-5938-a8a4-1c47489ef0ad
+		summarizeBy: none
+		sourceColumn: Special Offer Key
+
+	column 'Special Offer ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d4ebb25d-0689-59ee-9472-58b2263f3ede
+		summarizeBy: none
+		sourceColumn: Special Offer ID
+
+	column 'Special Offer'
+		dataType: string
+		lineageTag: 8b65063f-ad38-5e1b-a0eb-75282c4f1093
+		summarizeBy: none
+		sourceColumn: Special Offer
+
+	column 'Discount %'
+		dataType: double
+		formatString: 0%
+		lineageTag: 5fee8182-2944-56ce-aab8-a84300bc3c9a
+		summarizeBy: none
+		sourceColumn: Discount %
+
+	column 'Offer Type'
+		dataType: string
+		lineageTag: 66220fff-436e-5a41-b952-22b5758da1c7
+		summarizeBy: none
+		sourceColumn: Offer Type
+
+	column 'Offer Category'
+		dataType: string
+		lineageTag: c8997d4b-394a-543a-9215-26e9261c59b2
+		summarizeBy: none
+		sourceColumn: Offer Category
+
+	column 'Start Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		lineageTag: 648d9366-fffb-59bd-b17e-6ee01eaeedae
+		summarizeBy: none
+		sourceColumn: Start Date
+
+	column 'End Date'
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		lineageTag: 23874a86-4c29-5d00-b45b-c94f616e45c5
+		summarizeBy: none
+		sourceColumn: End Date
+
+	column 'Min Qty'
+		dataType: int64
+		formatString: 0
+		lineageTag: 2b3ef247-fd22-5007-930b-781698c32eb3
+		summarizeBy: none
+		sourceColumn: Min Qty
+
+	column 'Max Qty'
+		dataType: int64
+		formatString: 0
+		lineageTag: d053ff0e-b752-5d28-898b-3d71454d6292
+		summarizeBy: none
+		sourceColumn: Max Qty
+
+	partition 'Special Offer' = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_special_offer"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"special_offer_key", "Special Offer Key"}, {"special_offer_id", "Special Offer ID"}, {"offer_description", "Special Offer"}, {"discount_pct", "Discount %"}, {"offer_type", "Offer Type"}, {"offer_category", "Offer Category"}, {"start_date", "Start Date"}, {"end_date", "End Date"}, {"min_qty", "Min Qty"}, {"max_qty", "Max Qty"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Special Offer", Text.Trim, type text}, {"Offer Type", Text.Trim, type text}, {"Offer Category", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Special Offer", "Offer Type", "Offer Category"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Special Offer Key", Int64.Type}, {"Special Offer ID", Int64.Type}, {"Special Offer", type text}, {"Discount %", type number}, {"Offer Type", type text}, {"Offer Category", type text}, {"Start Date", type date}, {"End Date", type date}, {"Min Qty", Int64.Type}, {"Max Qty", Int64.Type}})
+			in
+			    Typed

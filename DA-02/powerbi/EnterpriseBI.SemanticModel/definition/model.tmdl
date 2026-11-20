@@ -1,0 +1,31 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+
+ref table _Measures
+ref table Date
+ref table Territory
+ref table Product
+ref table Customer
+ref table Salesperson
+ref table Employee
+ref table Department
+ref table Vendor
+ref table 'Special Offer'
+ref table 'Ship Method'
+ref table Location
+ref table Sales
+ref table Quota
+ref table Purchases
+ref table Inventory
+ref table Headcount
+ref table Payroll
+ref table 'Region Access'
+
+ref role 'Region Manager'
+ref role 'Global Executive'
+
+ref expression p_SqlServer
+ref expression p_Database

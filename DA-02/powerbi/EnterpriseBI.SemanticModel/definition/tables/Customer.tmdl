@@ -1,0 +1,44 @@
+/// Customer (individual or reseller store).
+table Customer
+	lineageTag: e14f422d-3820-5add-bf88-702822776266
+
+	column 'Customer Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3e07313c-a37f-5afc-b852-3d86776982a0
+		summarizeBy: none
+		sourceColumn: Customer Key
+
+	column 'Customer ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bfea9e25-0b8e-5205-94d6-5d3d25313dbb
+		summarizeBy: none
+		sourceColumn: Customer ID
+
+	column 'Customer Type'
+		dataType: string
+		lineageTag: 6ae0d19d-b09a-52a4-99a2-566de8a634f3
+		summarizeBy: none
+		sourceColumn: Customer Type
+
+	column Customer
+		dataType: string
+		lineageTag: 73ba9923-96e1-5bc4-a4a9-ce5b8e2816fb
+		summarizeBy: none
+		sourceColumn: Customer
+
+	partition Customer = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_dim_customer"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"customer_key", "Customer Key"}, {"customer_id", "Customer ID"}, {"customer_type", "Customer Type"}, {"customer_name", "Customer"}}),
+			    Trimmed = Table.TransformColumns(Renamed, {{"Customer Type", Text.Trim, type text}, {"Customer", Text.Trim, type text}}),
+			    NoNulls = Table.ReplaceValue(Trimmed, null, "N/A", Replacer.ReplaceValue, {"Customer Type", "Customer"}),
+			    Typed = Table.TransformColumnTypes(NoNulls, {{"Customer Key", Int64.Type}, {"Customer ID", Int64.Type}, {"Customer Type", type text}, {"Customer", type text}})
+			in
+			    Typed

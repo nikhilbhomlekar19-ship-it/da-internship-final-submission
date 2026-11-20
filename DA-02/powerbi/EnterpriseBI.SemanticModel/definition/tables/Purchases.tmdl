@@ -1,0 +1,180 @@
+/// Purchase order line with delivery performance; region = vendor region.
+table Purchases
+	lineageTag: 7790a2e2-7771-56a4-ba90-f39c51a4d2e6
+
+	column 'Purchase Order ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9ca48dd4-7a24-5bc9-b296-0b6b84e6eea9
+		summarizeBy: none
+		sourceColumn: Purchase Order ID
+
+	column 'Purchase Order Detail ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a6b685ad-2bc9-5a71-8ec7-ebca8a38fd0f
+		summarizeBy: none
+		sourceColumn: Purchase Order Detail ID
+
+	column 'Order Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 53ebb6dd-4c1d-515d-a1f9-e06a668b9599
+		summarizeBy: none
+		sourceColumn: Order Date Key
+
+	column 'Ship Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 52ef7a87-9381-54c5-b1c9-8e62a1d86886
+		summarizeBy: none
+		sourceColumn: Ship Date Key
+
+	column 'Due Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d42ef3e1-3173-51a7-9b4d-54121f66a15a
+		summarizeBy: none
+		sourceColumn: Due Date Key
+
+	column 'Vendor Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 461fb7bf-0b1e-5f1b-9525-dd4965b6f9e3
+		summarizeBy: none
+		sourceColumn: Vendor Key
+
+	column 'Product Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 48142859-7b82-58e7-9aea-e10cbd1158f0
+		summarizeBy: none
+		sourceColumn: Product Key
+
+	column 'Ship Method Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 46be4626-54b6-506e-a83c-6a4eb783a742
+		summarizeBy: none
+		sourceColumn: Ship Method Key
+
+	column 'Territory Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4c1727eb-2541-5402-abab-53122fd836d5
+		summarizeBy: none
+		sourceColumn: Territory Key
+
+	column 'Order Status'
+		dataType: string
+		lineageTag: 38be88c7-6234-5dab-94b7-a2f08d814571
+		summarizeBy: none
+		sourceColumn: Order Status
+
+	column 'Order Quantity'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3f225957-e485-58c7-abe6-ee45e67bbbda
+		summarizeBy: none
+		sourceColumn: Order Quantity
+
+	column 'Received Quantity'
+		dataType: double
+		isHidden
+		formatString: #,0.00
+		lineageTag: 19870ef2-3293-5bdb-983d-606a0e70437b
+		summarizeBy: none
+		sourceColumn: Received Quantity
+
+	column 'Rejected Quantity'
+		dataType: double
+		isHidden
+		formatString: #,0.00
+		lineageTag: ef16b9d6-4bc3-5a98-86c5-9f670ecf82b5
+		summarizeBy: none
+		sourceColumn: Rejected Quantity
+
+	column 'Stocked Quantity'
+		dataType: double
+		isHidden
+		formatString: #,0.00
+		lineageTag: 069ac0ca-4bd4-5d7d-9243-86ab141d390c
+		summarizeBy: none
+		sourceColumn: Stocked Quantity
+
+	column 'Unit Price'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 8687552e-d77a-54d9-8e38-98096f71142c
+		summarizeBy: none
+		sourceColumn: Unit Price
+
+	column 'Line Total Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 1e1573a1-34bf-5579-a329-b2735692de0b
+		summarizeBy: none
+		sourceColumn: Line Total Amount
+
+	column 'Allocated Freight Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 30baeb1a-0988-5908-aaf4-293d4e06bb50
+		summarizeBy: none
+		sourceColumn: Allocated Freight Amount
+
+	column 'Allocated Tax Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 0ac585c5-06ea-5d35-b62e-edc159563859
+		summarizeBy: none
+		sourceColumn: Allocated Tax Amount
+
+	column 'Shipped Flag'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: acbdc7a7-1f97-5880-a309-c8d828dc864d
+		summarizeBy: none
+		sourceColumn: Shipped Flag
+
+	column 'On Time Flag'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 50327cab-5648-55b4-8479-845091b4f518
+		summarizeBy: none
+		sourceColumn: On Time Flag
+
+	column 'Days Late'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c44bf09e-af08-504f-a475-5c3ca6a95b80
+		summarizeBy: none
+		sourceColumn: Days Late
+
+	partition Purchases = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_fact_purchase_line"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"purchase_order_id", "Purchase Order ID"}, {"purchase_order_detail_id", "Purchase Order Detail ID"}, {"order_date_key", "Order Date Key"}, {"ship_date_key", "Ship Date Key"}, {"due_date_key", "Due Date Key"}, {"vendor_key", "Vendor Key"}, {"product_key", "Product Key"}, {"ship_method_key", "Ship Method Key"}, {"territory_key", "Territory Key"}, {"order_status", "Order Status"}, {"order_quantity", "Order Quantity"}, {"received_quantity", "Received Quantity"}, {"rejected_quantity", "Rejected Quantity"}, {"stocked_quantity", "Stocked Quantity"}, {"unit_price", "Unit Price"}, {"line_total_amount", "Line Total Amount"}, {"allocated_freight_amount", "Allocated Freight Amount"}, {"allocated_tax_amount", "Allocated Tax Amount"}, {"shipped_flag", "Shipped Flag"}, {"on_time_flag", "On Time Flag"}, {"days_late", "Days Late"}}),
+			    Typed = Table.TransformColumnTypes(Renamed, {{"Purchase Order ID", Int64.Type}, {"Purchase Order Detail ID", Int64.Type}, {"Order Date Key", Int64.Type}, {"Ship Date Key", Int64.Type}, {"Due Date Key", Int64.Type}, {"Vendor Key", Int64.Type}, {"Product Key", Int64.Type}, {"Ship Method Key", Int64.Type}, {"Territory Key", Int64.Type}, {"Order Status", type text}, {"Order Quantity", Int64.Type}, {"Received Quantity", type number}, {"Rejected Quantity", type number}, {"Stocked Quantity", type number}, {"Unit Price", Currency.Type}, {"Line Total Amount", Currency.Type}, {"Allocated Freight Amount", Currency.Type}, {"Allocated Tax Amount", Currency.Type}, {"Shipped Flag", Int64.Type}, {"On Time Flag", Int64.Type}, {"Days Late", Int64.Type}})
+			in
+			    Typed

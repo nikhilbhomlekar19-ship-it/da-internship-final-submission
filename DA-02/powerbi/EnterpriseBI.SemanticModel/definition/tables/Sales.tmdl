@@ -1,0 +1,200 @@
+/// Sales order line (Sales.SalesOrderDetail) with cost and header-level freight/tax allocated by revenue share.
+table Sales
+	lineageTag: e95edb50-d3e2-5c55-b6f5-5ff8894e341c
+
+	column 'Sales Order ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b9c2b1c9-5029-5115-86b9-ed4423b37e4d
+		summarizeBy: none
+		sourceColumn: Sales Order ID
+
+	column 'Sales Order Detail ID'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 28cb7b99-cc78-570b-84d6-2ebc88fbf301
+		summarizeBy: none
+		sourceColumn: Sales Order Detail ID
+
+	column 'Sales Order Number'
+		dataType: string
+		lineageTag: 71c7b609-e4a4-59fc-99f8-ce326b699e25
+		summarizeBy: none
+		sourceColumn: Sales Order Number
+
+	column 'Order Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8586020b-14a0-514e-8df6-a15f1cdc9632
+		summarizeBy: none
+		sourceColumn: Order Date Key
+
+	column 'Ship Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7c9bbb49-e5e8-5712-9806-c7c9f21ee448
+		summarizeBy: none
+		sourceColumn: Ship Date Key
+
+	column 'Due Date Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7c3bd995-70d3-558a-80e1-dfcc1374a11e
+		summarizeBy: none
+		sourceColumn: Due Date Key
+
+	column 'Customer Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 88b1dfdb-0bba-5c28-91fb-f9c8c381d4c4
+		summarizeBy: none
+		sourceColumn: Customer Key
+
+	column 'Product Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 86480962-6790-56dc-85f9-f138bda69c5c
+		summarizeBy: none
+		sourceColumn: Product Key
+
+	column 'Territory Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2dd09e03-79c0-52dc-8eb2-f243a09e24fa
+		summarizeBy: none
+		sourceColumn: Territory Key
+
+	column 'Salesperson Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 91214d47-5dbf-500d-b794-c4b54d4124ce
+		summarizeBy: none
+		sourceColumn: Salesperson Key
+
+	column 'Special Offer Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b27b30e5-6a36-5f78-b83f-747aa7c53ab6
+		summarizeBy: none
+		sourceColumn: Special Offer Key
+
+	column 'Ship Method Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 54b76e99-c78d-50a5-b616-1a6eac398223
+		summarizeBy: none
+		sourceColumn: Ship Method Key
+
+	column 'Order Channel'
+		dataType: string
+		lineageTag: 9fa91b2c-d69f-5f93-8026-3c77a67185d4
+		summarizeBy: none
+		sourceColumn: Order Channel
+
+	column 'Order Status'
+		dataType: string
+		lineageTag: 64f28f72-379d-5084-bb2c-84e3606689fe
+		summarizeBy: none
+		sourceColumn: Order Status
+
+	column 'Order Quantity'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 45412b69-f861-5ac2-b159-0bea451b3b4a
+		summarizeBy: none
+		sourceColumn: Order Quantity
+
+	column 'Unit Price'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 9157920e-4eb4-5a1f-87df-0cb856440279
+		summarizeBy: none
+		sourceColumn: Unit Price
+
+	column 'Unit Price Discount %'
+		dataType: double
+		isHidden
+		formatString: #,0.00
+		lineageTag: 7823d3d6-6120-5fc0-a117-ed5a3f5d20c2
+		summarizeBy: none
+		sourceColumn: Unit Price Discount %
+
+	column 'Gross Sales Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: d4ac6b88-df8e-5308-9e59-19bbb8fbcd20
+		summarizeBy: none
+		sourceColumn: Gross Sales Amount
+
+	column 'Discount Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 87c8801a-674b-57f5-8f95-3f7cc65fb998
+		summarizeBy: none
+		sourceColumn: Discount Amount
+
+	column 'Net Sales Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: d4f25df7-d0de-5de7-a1e7-68912a2482a2
+		summarizeBy: none
+		sourceColumn: Net Sales Amount
+
+	column 'Standard Cost Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 45eecc8e-b042-594d-977d-c8fbf76960ef
+		summarizeBy: none
+		sourceColumn: Standard Cost Amount
+
+	column 'Gross Margin Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 51588315-d5ba-56de-9721-c8845963e855
+		summarizeBy: none
+		sourceColumn: Gross Margin Amount
+
+	column 'Allocated Freight Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 8c8a7ae2-6b36-5d84-b01e-3f7c31031538
+		summarizeBy: none
+		sourceColumn: Allocated Freight Amount
+
+	column 'Allocated Tax Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 066aa83d-6c35-5fc8-beae-f91d9213ec32
+		summarizeBy: none
+		sourceColumn: Allocated Tax Amount
+
+	partition Sales = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_fact_sales_line"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"sales_order_id", "Sales Order ID"}, {"sales_order_detail_id", "Sales Order Detail ID"}, {"sales_order_number", "Sales Order Number"}, {"order_date_key", "Order Date Key"}, {"ship_date_key", "Ship Date Key"}, {"due_date_key", "Due Date Key"}, {"customer_key", "Customer Key"}, {"product_key", "Product Key"}, {"territory_key", "Territory Key"}, {"salesperson_key", "Salesperson Key"}, {"special_offer_key", "Special Offer Key"}, {"ship_method_key", "Ship Method Key"}, {"order_channel", "Order Channel"}, {"order_status", "Order Status"}, {"order_quantity", "Order Quantity"}, {"unit_price", "Unit Price"}, {"unit_price_discount_pct", "Unit Price Discount %"}, {"gross_sales_amount", "Gross Sales Amount"}, {"discount_amount", "Discount Amount"}, {"net_sales_amount", "Net Sales Amount"}, {"standard_cost_amount", "Standard Cost Amount"}, {"gross_margin_amount", "Gross Margin Amount"}, {"allocated_freight_amount", "Allocated Freight Amount"}, {"allocated_tax_amount", "Allocated Tax Amount"}}),
+			    Typed = Table.TransformColumnTypes(Renamed, {{"Sales Order ID", Int64.Type}, {"Sales Order Detail ID", Int64.Type}, {"Sales Order Number", type text}, {"Order Date Key", Int64.Type}, {"Ship Date Key", Int64.Type}, {"Due Date Key", Int64.Type}, {"Customer Key", Int64.Type}, {"Product Key", Int64.Type}, {"Territory Key", Int64.Type}, {"Salesperson Key", Int64.Type}, {"Special Offer Key", Int64.Type}, {"Ship Method Key", Int64.Type}, {"Order Channel", type text}, {"Order Status", type text}, {"Order Quantity", Int64.Type}, {"Unit Price", Currency.Type}, {"Unit Price Discount %", type number}, {"Gross Sales Amount", Currency.Type}, {"Discount Amount", Currency.Type}, {"Net Sales Amount", Currency.Type}, {"Standard Cost Amount", Currency.Type}, {"Gross Margin Amount", Currency.Type}, {"Allocated Freight Amount", Currency.Type}, {"Allocated Tax Amount", Currency.Type}})
+			in
+			    Typed

@@ -1,0 +1,227 @@
+// Enterprise BI Suite - DAX measure library. One measure per block; a block starts with a "//@" header line.
+// Header fields:  folder | format (Power BI format string) | desc.  The generator turns this file into the TMDL model
+// and into measures_dax_query_view.dax (paste into Power BI Desktop > DAX query view > "Update model: add new measures").
+// Conventions: fiscal year = Jul-Jun (named by ending year); all time intelligence uses the single conformed 'Date' table.
+
+//@ folder: Sales | format: \$#,0 | desc: Net sales = line total after line discounts (ties to SalesOrderHeader.SubTotal).
+Net Sales = SUM ( Sales[Net Sales Amount] )
+
+//@ folder: Sales | format: \$#,0 | desc: List-price revenue before discounts.
+Gross Sales = SUM ( Sales[Gross Sales Amount] )
+
+//@ folder: Sales | format: \$#,0 | desc: Discounts given.
+Discount Amount = SUM ( Sales[Discount Amount] )
+
+//@ folder: Sales | format: 0.0% | desc: Discount as a share of gross sales.
+Discount % = DIVIDE ( [Discount Amount], [Gross Sales] )
+
+//@ folder: Sales | format: #,0 | desc: Units sold.
+Units Sold = SUM ( Sales[Order Quantity] )
+
+//@ folder: Sales | format: #,0 | desc: Distinct sales orders.
+Orders = DISTINCTCOUNT ( Sales[Sales Order ID] )
+
+//@ folder: Sales | format: #,0 | desc: Distinct customers with at least one order in context.
+Active Customers = DISTINCTCOUNT ( Sales[Customer Key] )
+
+//@ folder: Sales | format: \$#,0 | desc: Net sales per order.
+Avg Order Value = DIVIDE ( [Net Sales], [Orders] )
+
+//@ folder: Sales | format: 0.0% | desc: Share of net sales that came through the online channel.
+Online Sales Share % = DIVIDE ( CALCULATE ( [Net Sales], Sales[Order Channel] = "Online" ), [Net Sales] )
+
+//@ folder: Sales | format: 0.0% | desc: Net sales as a share of the territories currently selected.
+Net Sales % of Total = DIVIDE ( [Net Sales], CALCULATE ( [Net Sales], ALLSELECTED ( Territory ) ) )
+
+//@ folder: Sales | format: dd mmm yyyy | desc: Last order date visible to the current user (respects row-level security).
+Latest Sales Date = LOOKUPVALUE ( 'Date'[Date], 'Date'[Date Key], CALCULATE ( MAX ( Sales[Order Date Key] ), REMOVEFILTERS ( 'Date' ) ) )
+
+//@ folder: Time Intelligence | format: \$#,0 | desc: Fiscal year-to-date net sales (fiscal year ends 30 June).
+Net Sales YTD (Fiscal) = TOTALYTD ( [Net Sales], 'Date'[Date], "6/30" )
+
+//@ folder: Time Intelligence | format: \$#,0 | desc: Calendar year-to-date net sales.
+Net Sales YTD (Calendar) = TOTALYTD ( [Net Sales], 'Date'[Date] )
+
+//@ folder: Time Intelligence | format: \$#,0 | desc: Net sales for the same period one year earlier.
+Net Sales PY = CALCULATE ( [Net Sales], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+
+//@ folder: Time Intelligence | format: 0.0%;-0.0%;0.0% | desc: Year-over-year growth of net sales. Use fiscal-year or month granularity (partial calendar years are not like-for-like).
+Net Sales YoY Growth % =
+VAR _py = [Net Sales PY]
+RETURN
+    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Net Sales] - _py, _py ) )
+
+//@ folder: Time Intelligence | format: \$#,0 | desc: Fiscal YTD net sales one year earlier.
+Net Sales YTD (Fiscal) PY = CALCULATE ( [Net Sales YTD (Fiscal)], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+
+//@ folder: Time Intelligence | format: 0.0%;-0.0%;0.0% | desc: Fiscal YTD growth versus the same point last year.
+Net Sales YTD YoY Growth % (Fiscal) =
+VAR _py = [Net Sales YTD (Fiscal) PY]
+RETURN
+    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Net Sales YTD (Fiscal)] - _py, _py ) )
+
+//@ folder: Time Intelligence | format: 0.0%;-0.0%;0.0% | desc: Month-over-month growth of net sales.
+Net Sales MoM Growth % =
+VAR _pm = CALCULATE ( [Net Sales], DATEADD ( 'Date'[Date], -1, MONTH ) )
+RETURN
+    IF ( NOT ISBLANK ( _pm ), DIVIDE ( [Net Sales] - _pm, _pm ) )
+
+//@ folder: Time Intelligence | format: \$#,0 | desc: Average monthly net sales over the 3 calendar months ending with the selected period's last month. Uses Month Index (avoids the DATESINPERIOD end-of-month quirk).
+Net Sales Rolling 3M Avg =
+VAR _idx = MAX ( 'Date'[Month Index] )
+RETURN
+    CALCULATE (
+        AVERAGEX ( VALUES ( 'Date'[Year Month Number] ), [Net Sales] ),
+        REMOVEFILTERS ( 'Date' ),
+        'Date'[Month Index] > _idx - 3,
+        'Date'[Month Index] <= _idx
+    )
+
+//@ folder: Time Intelligence | format: \$#,0 | desc: Net sales over the 12 calendar months ending with the selected period's last month.
+Net Sales Rolling 12M =
+VAR _idx = MAX ( 'Date'[Month Index] )
+RETURN
+    CALCULATE (
+        [Net Sales],
+        REMOVEFILTERS ( 'Date' ),
+        'Date'[Month Index] > _idx - 12,
+        'Date'[Month Index] <= _idx
+    )
+
+//@ folder: Time Intelligence | format: \$#,0 | desc: Net sales by ship date (uses the inactive Ship Date relationship).
+Net Sales by Ship Date = CALCULATE ( [Net Sales], USERELATIONSHIP ( Sales[Ship Date Key], 'Date'[Date Key] ) )
+
+//@ folder: Quota | format: \$#,0 | desc: Sales quota (quarterly quota spread evenly over the quarter's months).
+Sales Quota = SUM ( Quota[Quota Amount] )
+
+//@ folder: Quota | format: 0.0% | desc: Net sales of quota-carrying salespeople divided by quota.
+Quota Attainment % = DIVIDE ( CALCULATE ( [Net Sales], Salesperson[Quota Status] = "Quota-carrying" ), [Sales Quota] )
+
+//@ folder: Quota | format: \$#,0;-\$#,0 | desc: Quota-carrying sales minus quota.
+Quota Variance = CALCULATE ( [Net Sales], Salesperson[Quota Status] = "Quota-carrying" ) - [Sales Quota]
+
+//@ folder: Finance | format: \$#,0 | desc: Cost of goods sold = quantity x standard cost valid on the order date.
+COGS = SUM ( Sales[Standard Cost Amount] )
+
+//@ folder: Finance | format: \$#,0 | desc: Net sales minus COGS.
+Gross Margin = [Net Sales] - [COGS]
+
+//@ folder: Finance | format: 0.0% | desc: Gross margin divided by net sales.
+Gross Margin % = DIVIDE ( [Gross Margin], [Net Sales] )
+
+//@ folder: Finance | format: 0.0% | desc: Gross margin % for the same period one year earlier.
+Gross Margin % PY = CALCULATE ( [Gross Margin %], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+
+//@ folder: Finance | format: +0.0%;-0.0%;0.0% | desc: Change in gross margin % versus last year (percentage points shown as %).
+Gross Margin % YoY Change = IF ( NOT ISBLANK ( [Gross Margin % PY] ), [Gross Margin %] - [Gross Margin % PY] )
+
+//@ folder: Finance | format: \$#,0 | desc: Shipping charges billed to customers (SalesOrderHeader.Freight allocated to lines by revenue share).
+Freight Billed = SUM ( Sales[Allocated Freight Amount] )
+
+//@ folder: Finance | format: \$#,0 | desc: Sales tax billed (SalesOrderHeader.TaxAmt allocated to lines).
+Sales Tax Billed = SUM ( Sales[Allocated Tax Amount] )
+
+//@ folder: Finance | format: \$#,0 | desc: Net sales + freight + tax = invoiced amount (ties to SalesOrderHeader.TotalDue).
+Total Billed = [Net Sales] + [Freight Billed] + [Sales Tax Billed]
+
+//@ folder: Finance | format: \$#,0 | desc: Estimated payroll cost = hourly rate x 173.33 hours per employee-month (excludes benefits/overtime).
+Est. Payroll Cost = SUM ( Payroll[Estimated Payroll Cost] )
+
+//@ folder: Finance | format: \$#,0;-\$#,0 | desc: Management proxy: gross margin minus estimated company-wide payroll.
+Gross Margin after Payroll (est.) = [Gross Margin] - [Est. Payroll Cost]
+
+//@ folder: Supply Chain | format: \$#,0 | desc: Purchase order line totals (excl. freight and tax).
+Purchase Spend = SUM ( Purchases[Line Total Amount] )
+
+//@ folder: Supply Chain | format: \$#,0 | desc: Purchase freight allocated to lines.
+Purchase Freight Cost = SUM ( Purchases[Allocated Freight Amount] )
+
+//@ folder: Supply Chain | format: 0.0%;-0.0%;0.0% | desc: Year-over-year growth of purchase spend.
+Purchase Spend YoY Growth % =
+VAR _py = CALCULATE ( [Purchase Spend], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+RETURN
+    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Purchase Spend] - _py, _py ) )
+
+//@ folder: Supply Chain | format: #,0 | desc: Purchase order lines.
+PO Lines = COUNTROWS ( Purchases )
+
+//@ folder: Supply Chain | format: #,0 | desc: Distinct purchase orders.
+Purchase Orders = DISTINCTCOUNT ( Purchases[Purchase Order ID] )
+
+//@ folder: Supply Chain | format: #,0 | desc: Vendors with purchase orders in context.
+Active Vendors = DISTINCTCOUNT ( Purchases[Vendor Key] )
+
+//@ folder: Supply Chain | format: #,0 | desc: Ordered quantity.
+Ordered Qty = SUM ( Purchases[Order Quantity] )
+
+//@ folder: Supply Chain | format: #,0 | desc: Received quantity.
+Received Qty = SUM ( Purchases[Received Quantity] )
+
+//@ folder: Supply Chain | format: #,0 | desc: Rejected quantity.
+Rejected Qty = SUM ( Purchases[Rejected Quantity] )
+
+//@ folder: Supply Chain | format: 0.0% | desc: Received / ordered quantity.
+Receipt Fill Rate % = DIVIDE ( [Received Qty], [Ordered Qty] )
+
+//@ folder: Supply Chain | format: 0.0% | desc: Rejected / received quantity.
+Reject Rate % = DIVIDE ( [Rejected Qty], [Received Qty] )
+
+//@ folder: Supply Chain | format: 0.0% | desc: Share of shipped PO lines that shipped on or before their due date.
+On-Time Delivery % = DIVIDE ( SUM ( Purchases[On Time Flag] ), SUM ( Purchases[Shipped Flag] ) )
+
+//@ folder: Supply Chain | format: 0.0 | desc: Average days late across shipped PO lines (on-time lines count as 0).
+Avg Days Late = DIVIDE ( SUM ( Purchases[Days Late] ), SUM ( Purchases[Shipped Flag] ) )
+
+//@ folder: Supply Chain | format: #,0 | desc: Units on hand (current snapshot, company-wide).
+Inventory On Hand (Qty) = SUM ( Inventory[Quantity] )
+
+//@ folder: Supply Chain | format: \$#,0 | desc: On-hand quantity x current standard cost.
+Inventory Value = SUM ( Inventory[Inventory Value Amount] )
+
+//@ folder: Supply Chain | format: #,0 | desc: Stocked products whose total on-hand quantity is below their reorder point.
+Products Below Reorder Point =
+COUNTROWS (
+    FILTER (
+        VALUES ( Product[Product Key] ),
+        VAR _q = [Inventory On Hand (Qty)]
+        RETURN NOT ISBLANK ( _q ) && _q < MAX ( Product[Reorder Point] )
+    )
+)
+
+//@ folder: HR | format: #,0 | desc: Employees on the last month-end in the selected period (semi-additive snapshot).
+Headcount =
+CALCULATE (
+    SUM ( Headcount[Headcount Flag] ),
+    LASTNONBLANK ( 'Date'[Date], CALCULATE ( COUNTROWS ( Headcount ) ) )
+)
+
+//@ folder: HR | format: #,0 | desc: Employees whose hire date falls in the selected period.
+New Hires = SUM ( Headcount[New Hire Flag] )
+
+//@ folder: HR | format: 0.0 | desc: Average tenure in years at the last month-end of the period.
+Avg Tenure (Years) =
+DIVIDE (
+    CALCULATE (
+        SUM ( Headcount[Tenure Months] ),
+        LASTNONBLANK ( 'Date'[Date], CALCULATE ( COUNTROWS ( Headcount ) ) )
+    ),
+    [Headcount] * 12
+)
+
+//@ folder: HR | format: 0.0%;-0.0%;0.0% | desc: Headcount growth versus the same period last year.
+Headcount YoY Growth % =
+VAR _py = CALCULATE ( [Headcount], SAMEPERIODLASTYEAR ( 'Date'[Date] ) )
+RETURN
+    IF ( NOT ISBLANK ( _py ), DIVIDE ( [Headcount] - _py, _py ) )
+
+//@ folder: HR | format: \$#,0 | desc: Estimated monthly payroll cost per employee.
+Avg Monthly Cost per Employee = DIVIDE ( [Est. Payroll Cost], SUM ( Payroll[Employee Count] ) )
+
+//@ folder: Security | format: #,0 | desc: Number of territories the current user can see (RLS test helper).
+Territories Visible = COUNTROWS ( VALUES ( Territory[Territory Key] ) )
+
+//@ folder: Security | desc: Signed-in user as seen by row-level security.
+Current User = USERPRINCIPALNAME ()
+
+//@ folder: Security | desc: Label for report headers.
+Data Through = "Sales data through " & FORMAT ( [Latest Sales Date], "d mmm yyyy" )

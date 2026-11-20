@@ -1,0 +1,46 @@
+/// Current on-hand inventory snapshot per product and location (AdventureWorks has no inventory history). Company-wide, not regional.
+table Inventory
+	lineageTag: a9ef9012-c5da-5829-94a6-30fafaa90dd9
+
+	column 'Product Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f9e1557a-aa25-5088-9136-a1746d13bf5b
+		summarizeBy: none
+		sourceColumn: Product Key
+
+	column 'Location Key'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 70c15c52-28c1-5bc6-8624-70f7895a620a
+		summarizeBy: none
+		sourceColumn: Location Key
+
+	column Quantity
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 493d14eb-49ff-51fa-a234-948f24da7937
+		summarizeBy: none
+		sourceColumn: Quantity
+
+	column 'Inventory Value Amount'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0.00
+		lineageTag: 90ea307a-e051-585e-94ba-7bc15f0bcbdf
+		summarizeBy: none
+		sourceColumn: Inventory Value Amount
+
+	partition Inventory = m
+		mode: import
+		source =
+			let
+			    Source = Sql.Database(p_SqlServer, p_Database),
+			    Data = Source{[Schema = "rpt", Item = "vw_fact_inventory"]}[Data],
+			    Renamed = Table.RenameColumns(Data, {{"product_key", "Product Key"}, {"location_key", "Location Key"}, {"quantity", "Quantity"}, {"inventory_value_amount", "Inventory Value Amount"}}),
+			    Typed = Table.TransformColumnTypes(Renamed, {{"Product Key", Int64.Type}, {"Location Key", Int64.Type}, {"Quantity", Int64.Type}, {"Inventory Value Amount", Currency.Type}})
+			in
+			    Typed

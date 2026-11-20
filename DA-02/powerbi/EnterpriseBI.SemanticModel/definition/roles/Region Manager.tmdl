@@ -1,0 +1,14 @@
+/// Dynamic RLS: a user sees only the territories mapped to their UPN in sec.user_territory_map (via the hidden 'Region Access' table).
+role 'Region Manager'
+	modelPermission: read
+
+	tablePermission Territory =
+			COUNTROWS (
+			    FILTER (
+			        'Region Access',
+			        'Region Access'[User Email] = USERPRINCIPALNAME ()
+			            && 'Region Access'[Territory Key] = Territory[Territory Key]
+			    )
+			) > 0
+
+	tablePermission 'Region Access' = 'Region Access'[User Email] = USERPRINCIPALNAME ()
