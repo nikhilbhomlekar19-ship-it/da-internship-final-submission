@@ -1,0 +1,28 @@
+digraph arch {
+  rankdir=LR; compound=true; fontname="Helvetica"; nodesep=0.35; ranksep=0.7; splines=true;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, fillcolor="#FFFFFF", color="#1F4E79", margin="0.18,0.10"];
+  edge [color="#555555", fontname="Helvetica", fontsize=9];
+  subgraph cluster_src { label="1  Source"; style="rounded,filled"; fillcolor="#EEF3F8"; color="#9DB4C9"; fontname="Helvetica-Bold";
+    src [label="AdventureWorks2022 (OLTP)\nSales · Production\nPurchasing · HumanResources\n(SQL Server)"]; }
+  subgraph cluster_orch { label="2  Orchestration"; style="rounded,filled"; fillcolor="#FFF4E0"; color="#E0B060"; fontname="Helvetica-Bold";
+    shir [label="Self-hosted\nintegration runtime"];
+    adf [label="Azure Data Factory\npl_master_daily  (02:00 IST)\nmetadata-driven copy\nFULL + watermark upsert\nretry · failure webhook"];
+    agent [label="SQL Server Agent job\n(no-Azure fallback)\nEXEC etl.usp_run_all 'LOCAL'"]; }
+  subgraph cluster_dw { label="3  AW_BI database (SQL Server / Azure SQL DB)"; style="rounded,filled"; fillcolor="#E8F4EA"; color="#8DBF98"; fontname="Helvetica-Bold";
+    stg [label="stg.*\n28 raw source tables"];
+    dw [label="dw.*  star schema\n11 dimensions · 6 facts\nSCD1 · unknown members · FKs"];
+    dq [label="Data-quality gate\n52 checks (ERROR fails run)\netl.dq_result · run_log · step_log"];
+    rpt [label="rpt.* views\n(only objects Power BI reads)"];
+    sec [label="sec.user_territory_map\nuser → region"]; }
+  subgraph cluster_pbi { label="4  Power BI"; style="rounded,filled"; fillcolor="#F3E8F8"; color="#B79AD0"; fontname="Helvetica-Bold";
+    model [label="Semantic model (PBIP / TMDL)\nPower Query M · 58 DAX measures\n28 relationships (4 inactive role-playing)\nhierarchies · sort-by columns"];
+    rls [label="Row-level security\nRegion Manager (dynamic, UPN map)\nGlobal Executive"];
+    rep [label="Report\n5 executive pages\n+ 3 drill-through pages"];
+    svc [label="Power BI Service\nscheduled refresh 03:00 IST\nworkspace → app"]; }
+  users [label="Region managers\n(see only their territories)\n\nExecutives\n(all territories)", shape=box, style="rounded,filled", fillcolor="#FFFFFF"];
+  src -> shir [label="read"]; shir -> adf; src -> agent [label="cross-DB synonyms"];
+  adf -> stg [label="Copy"]; agent -> stg [label="INSERT…SELECT"];
+  stg -> dw [label="etl.usp_run_all\nSQL transforms"]; dw -> dq; dw -> rpt; sec -> rpt;
+  rpt -> model [label="Import (Power Query)"]; model -> rls; model -> rep; rep -> svc [label="publish"]; rls -> svc;
+  svc -> users; adf -> svc [label="REST: dataset refresh", style=dashed];
+}
