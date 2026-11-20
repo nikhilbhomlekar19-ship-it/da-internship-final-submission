@@ -1,0 +1,312 @@
+{
+  "name": "pl_extract_to_staging",
+  "properties": {
+    "description": "Metadata-driven extract: reads etl.source_table_config, copies each source table to stg (FULL = truncate+load, INCREMENTAL = watermark + upsert).",
+    "activities": [
+      {
+        "name": "Lookup table config",
+        "type": "Lookup",
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "AzureSqlSource",
+            "sqlReaderQuery": "SELECT source_schema, source_table, target_schema, target_table, load_type, watermark_column, key_columns, select_list FROM etl.source_table_config WHERE is_active = 1 ORDER BY load_order",
+            "queryTimeout": "02:00:00"
+          },
+          "dataset": {
+            "referenceName": "ds_dw_table",
+            "type": "DatasetReference",
+            "parameters": {}
+          },
+          "firstRowOnly": false
+        }
+      },
+      {
+        "name": "For each table",
+        "type": "ForEach",
+        "dependsOn": [
+          {
+            "activity": "Lookup table config",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "items": {
+            "value": "@activity('Lookup table config').output.value",
+            "type": "Expression"
+          },
+          "isSequential": false,
+          "batchCount": 4,
+          "activities": [
+            {
+              "name": "Full or incremental",
+              "type": "IfCondition",
+              "typeProperties": {
+                "expression": {
+                  "value": "@equals(item().load_type, 'FULL')",
+                  "type": "Expression"
+                },
+                "ifTrueActivities": [
+                  {
+                    "name": "Copy full",
+                    "type": "Copy",
+                    "policy": {
+                      "timeout": "0.02:00:00",
+                      "retry": 2,
+                      "retryIntervalInSeconds": 30,
+                      "secureOutput": false,
+                      "secureInput": false
+                    },
+                    "inputs": [
+                      {
+                        "referenceName": "ds_src_table",
+                        "type": "DatasetReference",
+                        "parameters": {
+                          "schema_name": {
+                            "value": "@item().source_schema",
+                            "type": "Expression"
+                          },
+                          "table_name": {
+                            "value": "@item().source_table",
+                            "type": "Expression"
+                          }
+                        }
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "referenceName": "ds_dw_table",
+                        "type": "DatasetReference",
+                        "parameters": {
+                          "schema_name": {
+                            "value": "@item().target_schema",
+                            "type": "Expression"
+                          },
+                          "table_name": {
+                            "value": "@item().target_table",
+                            "type": "Expression"
+                          }
+                        }
+                      }
+                    ],
+                    "typeProperties": {
+                      "source": {
+                        "type": "SqlServerSource",
+                        "sqlReaderQuery": {
+                          "value": "@concat('SELECT ', item().select_list, ' FROM [', item().source_schema, '].[', item().source_table, ']')",
+                          "type": "Expression"
+                        },
+                        "queryTimeout": "02:00:00"
+                      },
+                      "sink": {
+                        "type": "AzureSqlSink",
+                        "preCopyScript": {
+                          "value": "@concat('TRUNCATE TABLE [', item().target_schema, '].[', item().target_table, ']')",
+                          "type": "Expression"
+                        },
+                        "writeBehavior": "insert",
+                        "disableMetricsCollection": false
+                      },
+                      "enableStaging": false
+                    }
+                  }
+                ],
+                "ifFalseActivities": [
+                  {
+                    "name": "Get old watermark",
+                    "type": "Lookup",
+                    "policy": {
+                      "timeout": "0.02:00:00",
+                      "retry": 2,
+                      "retryIntervalInSeconds": 30,
+                      "secureOutput": false,
+                      "secureInput": false
+                    },
+                    "typeProperties": {
+                      "source": {
+                        "type": "AzureSqlSource",
+                        "sqlReaderQuery": {
+                          "value": "@concat('SELECT CONVERT(varchar(30), last_watermark, 126) AS last_watermark FROM etl.watermark WHERE table_name = ''', item().target_table, '''')",
+                          "type": "Expression"
+                        },
+                        "queryTimeout": "02:00:00"
+                      },
+                      "dataset": {
+                        "referenceName": "ds_dw_table",
+                        "type": "DatasetReference",
+                        "parameters": {}
+                      },
+                      "firstRowOnly": true
+                    }
+                  },
+                  {
+                    "name": "Get new watermark",
+                    "type": "Lookup",
+                    "policy": {
+                      "timeout": "0.02:00:00",
+                      "retry": 2,
+                      "retryIntervalInSeconds": 30,
+                      "secureOutput": false,
+                      "secureInput": false
+                    },
+                    "typeProperties": {
+                      "source": {
+                        "type": "SqlServerSource",
+                        "sqlReaderQuery": {
+                          "value": "@concat('SELECT CONVERT(varchar(30), MAX([', item().watermark_column, ']), 126) AS new_watermark FROM [', item().source_schema, '].[', item().source_table, ']')",
+                          "type": "Expression"
+                        },
+                        "queryTimeout": "02:00:00"
+                      },
+                      "dataset": {
+                        "referenceName": "ds_src_table",
+                        "type": "DatasetReference",
+                        "parameters": {
+                          "schema_name": {
+                            "value": "@item().source_schema",
+                            "type": "Expression"
+                          },
+                          "table_name": {
+                            "value": "@item().source_table",
+                            "type": "Expression"
+                          }
+                        }
+                      },
+                      "firstRowOnly": true
+                    }
+                  },
+                  {
+                    "name": "Copy delta (upsert)",
+                    "type": "Copy",
+                    "policy": {
+                      "timeout": "0.02:00:00",
+                      "retry": 2,
+                      "retryIntervalInSeconds": 30,
+                      "secureOutput": false,
+                      "secureInput": false
+                    },
+                    "inputs": [
+                      {
+                        "referenceName": "ds_src_table",
+                        "type": "DatasetReference",
+                        "parameters": {
+                          "schema_name": {
+                            "value": "@item().source_schema",
+                            "type": "Expression"
+                          },
+                          "table_name": {
+                            "value": "@item().source_table",
+                            "type": "Expression"
+                          }
+                        }
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "referenceName": "ds_dw_table",
+                        "type": "DatasetReference",
+                        "parameters": {
+                          "schema_name": {
+                            "value": "@item().target_schema",
+                            "type": "Expression"
+                          },
+                          "table_name": {
+                            "value": "@item().target_table",
+                            "type": "Expression"
+                          }
+                        }
+                      }
+                    ],
+                    "dependsOn": [
+                      {
+                        "activity": "Get old watermark",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      },
+                      {
+                        "activity": "Get new watermark",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      }
+                    ],
+                    "typeProperties": {
+                      "source": {
+                        "type": "SqlServerSource",
+                        "sqlReaderQuery": {
+                          "value": "@concat('SELECT ', item().select_list, ' FROM [', item().source_schema, '].[', item().source_table, '] WHERE [', item().watermark_column, '] > ''', activity('Get old watermark').output.firstRow.last_watermark, ''' AND [', item().watermark_column, '] <= ''', activity('Get new watermark').output.firstRow.new_watermark, '''')",
+                          "type": "Expression"
+                        },
+                        "queryTimeout": "02:00:00"
+                      },
+                      "sink": {
+                        "type": "AzureSqlSink",
+                        "writeBehavior": "upsert",
+                        "upsertSettings": {
+                          "useTempDB": true,
+                          "keys": {
+                            "value": "@split(item().key_columns, ',')",
+                            "type": "Expression"
+                          }
+                        },
+                        "disableMetricsCollection": false
+                      },
+                      "enableStaging": false
+                    }
+                  },
+                  {
+                    "name": "Update watermark",
+                    "type": "SqlServerStoredProcedure",
+                    "linkedServiceName": {
+                      "referenceName": "ls_sql_dw",
+                      "type": "LinkedServiceReference"
+                    },
+                    "dependsOn": [
+                      {
+                        "activity": "Copy delta (upsert)",
+                        "dependencyConditions": [
+                          "Succeeded"
+                        ]
+                      }
+                    ],
+                    "typeProperties": {
+                      "storedProcedureName": "[etl].[usp_update_watermark]",
+                      "storedProcedureParameters": {
+                        "table_name": {
+                          "value": {
+                            "value": "@item().target_table",
+                            "type": "Expression"
+                          },
+                          "type": "String"
+                        },
+                        "new_watermark": {
+                          "value": {
+                            "value": "@activity('Get new watermark').output.firstRow.new_watermark",
+                            "type": "Expression"
+                          },
+                          "type": "DateTime"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "annotations": [
+      "aw-bi"
+    ]
+  }
+}

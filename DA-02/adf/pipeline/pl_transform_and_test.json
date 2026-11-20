@@ -1,0 +1,40 @@
+{
+  "name": "pl_transform_and_test",
+  "properties": {
+    "description": "Runs the warehouse load (dims, facts) and the data-quality gate. Fails the pipeline if an ERROR check fails.",
+    "activities": [
+      {
+        "name": "Run etl.usp_run_all",
+        "type": "SqlServerStoredProcedure",
+        "linkedServiceName": {
+          "referenceName": "ls_sql_dw",
+          "type": "LinkedServiceReference"
+        },
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 60
+        },
+        "typeProperties": {
+          "storedProcedureName": "[etl].[usp_run_all]",
+          "storedProcedureParameters": {
+            "extract_mode": {
+              "value": "ADF",
+              "type": "String"
+            },
+            "triggered_by": {
+              "value": {
+                "value": "@concat('ADF ', pipeline().Pipeline, ' run ', pipeline().RunId)",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        }
+      }
+    ],
+    "annotations": [
+      "aw-bi"
+    ]
+  }
+}

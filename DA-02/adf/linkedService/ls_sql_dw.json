@@ -1,0 +1,18 @@
+{
+  "name": "ls_sql_dw",
+  "properties": {
+    "type": "AzureSqlDatabase",
+    "typeProperties": {
+      "connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source={{DW_SQL_SERVER}};Initial Catalog={{DW_DATABASE}};User ID={{DW_SQL_USER}}",
+      "password": {
+        "type": "AzureKeyVaultSecret",
+        "store": {
+          "referenceName": "ls_keyvault",
+          "type": "LinkedServiceReference"
+        },
+        "secretName": "sql-dw-password"
+      }
+    },
+    "description": "AW_BI warehouse database (Azure SQL Database). For SQL Server swap the type to SqlServer + connectVia."
+  }
+}

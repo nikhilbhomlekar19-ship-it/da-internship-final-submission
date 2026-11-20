@@ -1,0 +1,30 @@
+{
+  "name": "ds_src_table",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "ls_sql_source",
+      "type": "LinkedServiceReference"
+    },
+    "type": "SqlServerTable",
+    "parameters": {
+      "schema_name": {
+        "type": "string",
+        "defaultValue": "Sales"
+      },
+      "table_name": {
+        "type": "string",
+        "defaultValue": "SalesOrderHeader"
+      }
+    },
+    "typeProperties": {
+      "schema": {
+        "value": "@dataset().schema_name",
+        "type": "Expression"
+      },
+      "table": {
+        "value": "@dataset().table_name",
+        "type": "Expression"
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "ls_sql_source",
+  "properties": {
+    "type": "SqlServer",
+    "connectVia": {
+      "referenceName": "{{SELF_HOSTED_IR_NAME}}",
+      "type": "IntegrationRuntimeReference"
+    },
+    "typeProperties": {
+      "connectionString": "Integrated Security=False;Data Source={{SOURCE_SQL_SERVER}};Initial Catalog={{SOURCE_DATABASE}};User ID={{SOURCE_SQL_USER}};Encrypt=True;TrustServerCertificate=True",
+      "password": {
+        "type": "AzureKeyVaultSecret",
+        "store": {
+          "referenceName": "ls_keyvault",
+          "type": "LinkedServiceReference"
+        },
+        "secretName": "sql-source-password"
+      }
+    },
+    "description": "AdventureWorks2022 on SQL Server (reached through a self-hosted integration runtime)."
+  }
+}

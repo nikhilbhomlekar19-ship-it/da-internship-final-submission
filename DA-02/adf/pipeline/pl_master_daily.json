@@ -1,0 +1,140 @@
+{
+  "name": "pl_master_daily",
+  "properties": {
+    "description": "Nightly orchestration: extract -> transform + DQ gate -> Power BI refresh. Webhook alert on failure.",
+    "parameters": {
+      "pbiWorkspaceId": {
+        "type": "string",
+        "defaultValue": ""
+      },
+      "pbiDatasetId": {
+        "type": "string",
+        "defaultValue": ""
+      },
+      "alertWebhookUrl": {
+        "type": "string",
+        "defaultValue": ""
+      }
+    },
+    "activities": [
+      {
+        "name": "Extract to staging",
+        "type": "ExecutePipeline",
+        "typeProperties": {
+          "pipeline": {
+            "referenceName": "pl_extract_to_staging",
+            "type": "PipelineReference"
+          },
+          "waitOnCompletion": true
+        }
+      },
+      {
+        "name": "Transform and test",
+        "type": "ExecutePipeline",
+        "dependsOn": [
+          {
+            "activity": "Extract to staging",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "pipeline": {
+            "referenceName": "pl_transform_and_test",
+            "type": "PipelineReference"
+          },
+          "waitOnCompletion": true
+        }
+      },
+      {
+        "name": "Refresh Power BI dataset",
+        "type": "IfCondition",
+        "dependsOn": [
+          {
+            "activity": "Transform and test",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "expression": {
+            "value": "@and(not(empty(pipeline().parameters.pbiWorkspaceId)), not(empty(pipeline().parameters.pbiDatasetId)))",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "name": "POST refresh",
+              "type": "WebActivity",
+              "typeProperties": {
+                "url": {
+                  "value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/', pipeline().parameters.pbiWorkspaceId, '/datasets/', pipeline().parameters.pbiDatasetId, '/refreshes')",
+                  "type": "Expression"
+                },
+                "method": "POST",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "body": {
+                  "notifyOption": "MailOnFailure"
+                },
+                "authentication": {
+                  "type": "MSI",
+                  "resource": "https://analysis.windows.net/powerbi/api"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "Alert on failure",
+        "type": "IfCondition",
+        "dependsOn": [
+          {
+            "activity": "Extract to staging",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          },
+          {
+            "activity": "Transform and test",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ],
+        "typeProperties": {
+          "expression": {
+            "value": "@not(empty(pipeline().parameters.alertWebhookUrl))",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "name": "POST webhook",
+              "type": "WebActivity",
+              "typeProperties": {
+                "url": {
+                  "value": "@pipeline().parameters.alertWebhookUrl",
+                  "type": "Expression"
+                },
+                "method": "POST",
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "body": {
+                  "value": "@json(concat('{\"text\":\"AW_BI nightly pipeline FAILED. Run id: ', pipeline().RunId, '\"}'))",
+                  "type": "Expression"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "annotations": [
+      "aw-bi"
+    ]
+  }
+}
