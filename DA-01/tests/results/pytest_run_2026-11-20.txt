@@ -1,7 +1,7 @@
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python
 cachedir: .pytest_cache
-rootdir: /home/claude/submission/da-internship-final-submission/DA-01
+rootdir: <repo>/DA-01
 configfile: pytest.ini
 testpaths: tests
 plugins: platformdirs-4.13.0, Faker-40.54.0, anyio-4.16.0
@@ -44,7 +44,7 @@ tests/test_streamlit_app.py::test_every_page_renders_without_exceptions[Data qua
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python
 cachedir: .pytest_cache
-rootdir: /home/claude/submission/da-internship-final-submission/DA-01
+rootdir: <repo>/DA-01
 configfile: pytest.ini
 testpaths: tests
 plugins: platformdirs-4.13.0, Faker-40.54.0, anyio-4.16.0

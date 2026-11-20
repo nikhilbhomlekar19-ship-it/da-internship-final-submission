@@ -1,7 +1,7 @@
 ============================= test session starts ==============================
 platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python3
 cachedir: .pytest_cache
-rootdir: /home/claude/submission/da-internship-final-submission/DA-02
+rootdir: <repo>/DA-02
 plugins: platformdirs-4.13.0, Faker-40.54.0, anyio-4.16.0
 collecting ... collected 98 items
 
