@@ -1,0 +1,62 @@
+name: DA-02 CI
+on:
+  push: { branches: [main], paths: ["DA-02/**", ".github/workflows/da-02.yml"] }
+  pull_request: { paths: ["DA-02/**", ".github/workflows/da-02.yml"] }
+  workflow_dispatch: { inputs: { run_sql_server_job: { description: "Also run the SQL Server integration job", type: boolean, default: false } } }
+
+defaults:
+  run:
+    working-directory: DA-02
+
+jobs:
+  static-and-transform-tests:          # needs no SQL Server and no Power BI; ~2 minutes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - run: SKIP_BAK=1 ./scripts/download_adventureworks.sh
+      - run: ./scripts/fetch_schemas.sh
+      - name: Generated files are up to date
+        run: python tools/build_repo.py --check
+      - name: Validate Power BI artifacts against Microsoft schemas, DAX refs, report fields
+        run: PBIR_SCHEMA_DIR=$PWD/.cache/json-schemas python tools/validate_model.py
+      - name: T-SQL syntax lint
+        run: python tools/lint_sql.py
+      - name: Tests (DuckDB transforms vs pandas baseline + static)
+        run: PBIR_SCHEMA_DIR=$PWD/.cache/json-schemas AW_CSV_DIR=$PWD/data/aw_oltp_csv pytest -v --junitxml=tests/results/junit.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: test-results, path: DA-02/tests/results/ }
+
+  sql-server-integration:              # UNVERIFIED by the author - first run may need small fixes. Manual only (downloads a 200 MB .bak).
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_sql_server_job }}
+    runs-on: ubuntu-latest
+    env: { SA_PASSWORD: "Y0urStrong!Passw0rd" }
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/download_adventureworks.sh
+      - name: Start SQL Server 2022 and wait until ready
+        run: |
+          docker run -d --name sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD="$SA_PASSWORD" -p 1433:1433 \
+            -v "$PWD/data:/var/opt/mssql/backup:ro" -v "$PWD:/repo:ro" mcr.microsoft.com/mssql/server:2022-latest
+          for i in $(seq 1 40); do docker exec sql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$SA_PASSWORD" -Q "SELECT 1" >/dev/null 2>&1 && break; sleep 3; done
+      - name: Restore AdventureWorks2022, build AW_BI, run ETL
+        run: |
+          Q() { docker exec sql /opt/mssql-tools18/bin/sqlcmd -C -b -S localhost -U sa -P "$SA_PASSWORD" "$@"; }
+          Q -Q "RESTORE DATABASE [AdventureWorks2022] FROM DISK=N'/var/opt/mssql/backup/AdventureWorks2022.bak' WITH MOVE 'AdventureWorks2022' TO '/var/opt/mssql/data/AdventureWorks2022.mdf', MOVE 'AdventureWorks2022_log' TO '/var/opt/mssql/data/AdventureWorks2022_log.ldf', REPLACE"
+          Q -i /repo/sql/00_create_database.sql
+          for f in 01_framework 02_staging 03_dw_schema 04_security 05_etl_dim_date 06_etl_dimensions 07_etl_facts 08_etl_orchestration 09_dq_checks 10_rpt_views; do Q -d AW_BI -i /repo/sql/$f.sql; done
+          Q -d AW_BI -i /repo/sql/02b_source_synonyms.sql -v SourceDb=AdventureWorks2022
+          Q -d AW_BI -Q "EXEC etl.usp_run_all @extract_mode='LOCAL', @triggered_by=N'ci'"
+      - name: SQL Server test suites
+        run: |
+          mkdir -p tests/results
+          for t in 01_integrity 02_kpi_baselines 03_source_reconciliation 04_performance_report; do
+            echo "=== $t" | tee -a tests/results/sql_ci.txt
+            docker exec sql /opt/mssql-tools18/bin/sqlcmd -C -b -W -s "|" -S localhost -U sa -P "$SA_PASSWORD" -d AW_BI -i /repo/tests/sql/$t.sql | tee -a tests/results/sql_ci.txt
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: sql-server-results, path: DA-02/tests/results/ }
